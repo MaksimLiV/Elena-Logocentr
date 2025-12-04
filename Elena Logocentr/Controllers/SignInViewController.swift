@@ -11,6 +11,23 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - UI Properties
     
+    // Scroll View
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = true
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.keyboardDismissMode = .onDrag
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    } ()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     // Logo
     private lazy var logoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -87,7 +104,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
         button.tintColor = .systemBlue
         button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        button.adjustsImageWhenHighlighted = false
         button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         return button
     }()
@@ -121,7 +137,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     // Main sign in button (blue)
     private lazy var signInButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle("Войти", for: .normal)
         button.backgroundColor = .systemBlue
         button.setTitleColor(.white, for: .normal)
@@ -132,7 +148,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     }()
     
     private lazy var forgotPasswordButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle("Забыли пароль?", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
@@ -266,19 +282,23 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         socialButtonsStackView.addArrangedSubview(facebookButton)
         socialButtonsStackView.addArrangedSubview(googleButton)
         
+        // SetUp scroll view
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
         // Add all elements to the screen
-        view.addSubview(logoImageView)
-        view.addSubview(titleLabel)
-        view.addSubview(emailLabel)
-        view.addSubview(passwordLabel)
-        view.addSubview(emailTextField)
-        view.addSubview(emailErrorLabel)
-        view.addSubview(passwordTextField)
-        view.addSubview(signInButton)
-        view.addSubview(forgotPasswordButton)
-        view.addSubview(orContinueLabel)
-        view.addSubview(socialButtonsStackView)
-        view.addSubview(signUpButton)
+        contentView.addSubview(logoImageView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(emailLabel)
+        contentView.addSubview(passwordLabel)
+        contentView.addSubview(emailTextField)
+        contentView.addSubview(emailErrorLabel)
+        contentView.addSubview(passwordTextField)
+        contentView.addSubview(signInButton)
+        contentView.addSubview(forgotPasswordButton)
+        contentView.addSubview(orContinueLabel)
+        contentView.addSubview(socialButtonsStackView)
+        contentView.addSubview(signUpButton)
         updateSignInButtonState()
     }
     
@@ -287,66 +307,82 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
-            //Logo
-            logoImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -20),
-            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            // MARK: ScrollView
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // MARK: ContentView in ScrollView
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            // MARK: Logo
+            logoImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            logoImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             logoImageView.widthAnchor.constraint(equalToConstant: 250),
             logoImageView.heightAnchor.constraint(equalToConstant: 250),
             
+            // Title Label
             titleLabel.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 15),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
             // Email Label
             emailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
-            emailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            emailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             // Email TextField
             emailTextField.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 8),
-            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            emailTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
+            emailTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
             emailTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            // Email Error Label - под email field
-            emailErrorLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 4),
+            // Email Error Label
+            emailErrorLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 2),
             emailErrorLabel.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor, constant: 4),
             emailErrorLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor, constant: -4),
             
             // Password Label
-            passwordLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
-            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            passwordLabel.topAnchor.constraint(equalTo: emailErrorLabel.bottomAnchor, constant: 5),
+            passwordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
-            // Password TextField - под password label
+            // Password TextField
             passwordTextField.topAnchor.constraint(equalTo: passwordLabel.bottomAnchor, constant: 8),
             passwordTextField.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             passwordTextField.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             passwordTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            // Sign In Button - под password field
+            // Sign In Button
             signInButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
             signInButton.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             signInButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             signInButton.heightAnchor.constraint(equalToConstant: 60),
             
-            // Forgot password - под sign in button
+            // Forgot Password
             forgotPasswordButton.topAnchor.constraint(equalTo: signInButton.bottomAnchor, constant: 16),
-            forgotPasswordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            forgotPasswordButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            // Or Continue Label - под forgot password
+            // Or Continue Label
             orContinueLabel.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: 25),
-            orContinueLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            orContinueLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            // Social Buttons StackView - под or continue
+            // Social Buttons
             socialButtonsStackView.topAnchor.constraint(equalTo: orContinueLabel.bottomAnchor, constant: 25),
-            socialButtonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            socialButtonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            socialButtonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            socialButtonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             socialButtonsStackView.heightAnchor.constraint(equalToConstant: 50),
             
-            // Sign Up Button - внизу экрана
-            signUpButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24),
-            signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signUpButton.heightAnchor.constraint(equalToConstant: 50)
+            // Sign Up Button (BOTTOM OF CONTENT)
+            signUpButton.topAnchor.constraint(equalTo: socialButtonsStackView.bottomAnchor, constant: 30),
+            signUpButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            signUpButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            signUpButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
         ])
     }
     
@@ -472,8 +508,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     @objc private func emailTextDidChange() {
         guard let email = emailTextField.text, !email.isEmpty else {
-            emailTextField.layer.borderColor = UIColor.clear.cgColor
-            emailTextField.layer.borderWidth = 0
+            emailTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            emailTextField.layer.borderWidth = 1
             emailErrorLabel.isHidden = true
             return
         }
