@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SignInViewController: UIViewController {
+class SignInViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - UI Properties
     
@@ -69,6 +69,29 @@ class SignInViewController: UIViewController {
         return textField
     }()
     
+    private lazy var emailErrorLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .systemRed
+        label.text = "Неверный формат emai, Пример: name@example.com"
+        label.isHidden = true
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    // Show/Hide password button
+    private lazy var showPasswordButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: "eye"), for: .normal)
+        button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
+        button.tintColor = .systemBlue
+        button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        button.adjustsImageWhenHighlighted = false
+        button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+        return button
+    }()
+    
     // Password text field
     private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
@@ -86,6 +109,12 @@ class SignInViewController: UIViewController {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 50))
         textField.leftView = paddingView
         textField.leftViewMode = .always
+        
+        let rightViewContainer = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 40))
+        rightViewContainer.addSubview(showPasswordButton)
+        showPasswordButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        textField.rightView = rightViewContainer
+        textField.rightViewMode = .always
         
         return textField
     }()
@@ -204,7 +233,7 @@ class SignInViewController: UIViewController {
     
     // Sign up button (at the bottom)
     private lazy var signUpButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -215,6 +244,7 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupEmailValidation()
         setupConstraints()
         configureLabels()
         configureSignUpButton()
@@ -226,6 +256,12 @@ class SignInViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
+        
+        // High keyboard
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
         
         socialButtonsStackView.addArrangedSubview(facebookButton)
         socialButtonsStackView.addArrangedSubview(googleButton)
@@ -236,12 +272,14 @@ class SignInViewController: UIViewController {
         view.addSubview(emailLabel)
         view.addSubview(passwordLabel)
         view.addSubview(emailTextField)
+        view.addSubview(emailErrorLabel)
         view.addSubview(passwordTextField)
         view.addSubview(signInButton)
         view.addSubview(forgotPasswordButton)
         view.addSubview(orContinueLabel)
         view.addSubview(socialButtonsStackView)
         view.addSubview(signUpButton)
+        updateSignInButtonState()
     }
     
     // MARK: - Setup Constraints
@@ -250,58 +288,62 @@ class SignInViewController: UIViewController {
         NSLayoutConstraint.activate([
             
             //Logo
-            logoImageView.bottomAnchor.constraint(equalTo: titleLabel.topAnchor, constant: -20),
+            logoImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -20),
             logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             logoImageView.widthAnchor.constraint(equalToConstant: 250),
             logoImageView.heightAnchor.constraint(equalToConstant: 250),
             
-            // Title label
-            titleLabel.bottomAnchor.constraint(equalTo: emailTextField.topAnchor, constant: -50),
+            titleLabel.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 15),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
-            // Email label
-            emailLabel.bottomAnchor.constraint(equalTo: emailTextField.topAnchor, constant: -8),
-            emailLabel.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor, constant: 16),
+            // Email Label
+            emailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            emailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             
             // Email TextField
-            emailTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
-            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            emailTextField.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 8),
+            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             emailTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            // Password Label
-            passwordLabel.bottomAnchor.constraint(equalTo: passwordTextField.topAnchor, constant: -8),
-            passwordLabel.leadingAnchor.constraint(equalTo: passwordTextField.leadingAnchor, constant: 16),
+            // Email Error Label - под email field
+            emailErrorLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 4),
+            emailErrorLabel.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor, constant: 4),
+            emailErrorLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor, constant: -4),
             
-            // Password TextField
-            passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 30),
+            // Password Label
+            passwordLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
+            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            
+            // Password TextField - под password label
+            passwordTextField.topAnchor.constraint(equalTo: passwordLabel.bottomAnchor, constant: 8),
             passwordTextField.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             passwordTextField.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             passwordTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            // Sign In Button
-            signInButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 40),
+            // Sign In Button - под password field
+            signInButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
             signInButton.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             signInButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
-            signInButton.heightAnchor.constraint(equalToConstant: 50),
+            signInButton.heightAnchor.constraint(equalToConstant: 60),
             
-            //Forgot password
+            // Forgot password - под sign in button
             forgotPasswordButton.topAnchor.constraint(equalTo: signInButton.bottomAnchor, constant: 16),
             forgotPasswordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            // Or Continue Label
+            // Or Continue Label - под forgot password
             orContinueLabel.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: 25),
             orContinueLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            // Social Buttons StackView
+            // Social Buttons StackView - под or continue
             socialButtonsStackView.topAnchor.constraint(equalTo: orContinueLabel.bottomAnchor, constant: 25),
             socialButtonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             socialButtonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             socialButtonsStackView.heightAnchor.constraint(equalToConstant: 50),
             
-            // Sign Up Button
+            // Sign Up Button - внизу экрана
             signUpButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24),
             signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 50)
@@ -359,11 +401,61 @@ class SignInViewController: UIViewController {
     
     // MARK: - Setup Actions
     
+    private func setupEmailValidation() {
+        emailTextField.addTarget(self, action: #selector(emailTextDidChange), for: .editingChanged)
+    }
+    
     private func setupActions() {
         signInButton.addTarget(self, action: #selector(signInButtonTapped), for: .touchUpInside)
         forgotPasswordButton.addTarget(self, action: #selector(openForgotPasswordViewController), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(openSignUpViewController), for: .touchUpInside)
+        
+        // Changes in text fields
+        emailTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
     }
+    
+    // MARK: - Helper Methods
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    //Called when the text in any of the text fields changes
+    @objc private func textFieldDidChange() {
+        updateSignInButtonState()
+    }
+    
+    // Updates the state of the "Sign In" button depending on whether the fields are filled
+    private func updateSignInButtonState() {
+        let emailText = emailTextField.text ?? ""
+        let passwordText = passwordTextField.text ?? ""
+        
+        let isFormValid = emailText.isValidEmail && !passwordText.isEmpty
+        signInButton.isEnabled = isFormValid
+        signInButton.alpha = isFormValid ? 1.0 : 0.5
+    }
+    
+    // MARK: - UITextFieldDelegate
+    //Этот метод вызывается когда пользователь нажимает кнопку Return на клавиатуре.
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == emailTextField {
+            passwordTextField.becomeFirstResponder()
+        } else if textField == passwordTextField {
+            passwordTextField.resignFirstResponder()
+            signInButtonTapped()
+        }
+        return true
+    }
+    
     
     // MARK: - Actions
     
@@ -372,6 +464,35 @@ class SignInViewController: UIViewController {
         let email = emailTextField.text ?? ""
         let password = passwordTextField.text ?? ""
         
+        email.isValidEmail
+        //  if else прописать значения
+        
+        password.isValidPassword
+    }   // if else прописать з
+    
+    @objc private func emailTextDidChange() {
+        guard let email = emailTextField.text, !email.isEmpty else {
+            emailTextField.layer.borderColor = UIColor.clear.cgColor
+            emailTextField.layer.borderWidth = 0
+            emailErrorLabel.isHidden = true
+            return
+        }
+        
+        if email.isValidEmail {
+            emailTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            emailTextField.layer.borderWidth = 1
+            emailErrorLabel.isHidden = true
+        } else {
+            emailTextField.layer.borderColor = UIColor.systemRed.cgColor
+            emailTextField.layer.borderWidth = 2
+            emailErrorLabel.isHidden = false
+        }
+    }
+    
+    // Toggle password visibility
+    @objc private func togglePasswordVisibility() {
+        passwordTextField.isSecureTextEntry.toggle()
+        showPasswordButton.isSelected.toggle()
     }
     
     @objc private func openSignUpViewController() {
@@ -383,4 +504,7 @@ class SignInViewController: UIViewController {
         let forgotPasswordVC = ForgotPasswordViewController()
         navigationController?.pushViewController(forgotPasswordVC, animated: true)
     }
+    
+    
+    
 }
