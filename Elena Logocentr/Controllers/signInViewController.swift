@@ -7,26 +7,13 @@
 
 import UIKit
 
-class SignInViewController: UIViewController, UITextFieldDelegate {
+class signInViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - UI Properties
     
-    // Scroll View
-    private lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsVerticalScrollIndicator = true
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.keyboardDismissMode = .onDrag
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    } ()
-    
-    private lazy var contentView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    // ScrollView components (configured via extension)
+    private var scrollView: UIScrollView!
+    private var contentView: UIView!
     
     // Logo
     private lazy var logoImageView: UIImageView = {
@@ -91,7 +78,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12)
         label.textColor = .systemRed
-        label.text = "Неверный формат emai, Пример: name@example.com"
+        label.text = "Неверный формат email, Пример: name@example.com"
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -259,6 +246,15 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Setup scrollable content using extension
+        let (scroll, content) = setupScrollableContent()
+        self.scrollView = scroll
+        self.contentView = content
+        
+        // Setup keyboard handling
+        setupKeyboardHandling(for: scrollView)
+        
         setupUI()
         setupEmailValidation()
         setupConstraints()
@@ -282,10 +278,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         socialButtonsStackView.addArrangedSubview(facebookButton)
         socialButtonsStackView.addArrangedSubview(googleButton)
         
-        // SetUp scroll view
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        
         // Add all elements to the screen
         contentView.addSubview(logoImageView)
         contentView.addSubview(titleLabel)
@@ -306,22 +298,10 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            
-            // MARK: ScrollView
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            // MARK: ContentView in ScrollView
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
+
+
             // MARK: Logo
-            logoImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            logoImageView.topAnchor.constraint(equalTo:contentView.topAnchor, constant: 10),
             logoImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             logoImageView.widthAnchor.constraint(equalToConstant: 250),
             logoImageView.heightAnchor.constraint(equalToConstant: 250),
@@ -532,12 +512,12 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc private func openSignUpViewController() {
-        let signUpVC = SignUpViewController()
+        let signUpVC = signUpViewController()
         navigationController?.pushViewController(signUpVC, animated: true)
     }
     
     @objc private func openForgotPasswordViewController() {
-        let forgotPasswordVC = ForgotPasswordViewController()
+        let forgotPasswordVC = forgotPasswordViewController()
         navigationController?.pushViewController(forgotPasswordVC, animated: true)
     }
     

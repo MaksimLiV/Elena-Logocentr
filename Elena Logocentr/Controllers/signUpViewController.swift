@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SignUpViewController: UIViewController {
+class signUpViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,6 +17,11 @@ class SignUpViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .systemBackground
         title = "Регистрация"
+    }
+    
+    func openSignUpViewController() {
+        let signUpVC = signUpViewController()
+        navigationController?.pushViewController(signUpVC, animated: true)
     }
 }
 
