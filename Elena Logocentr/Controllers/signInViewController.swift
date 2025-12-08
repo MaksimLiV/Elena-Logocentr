@@ -298,8 +298,7 @@ class signInViewController: UIViewController, UITextFieldDelegate {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-
-
+            
             // MARK: Logo
             logoImageView.topAnchor.constraint(equalTo:contentView.topAnchor, constant: 10),
             logoImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),

@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         /*if isUserReistered {
             
         } else { */
-            let navigationViewController = UINavigationController(rootViewController: SignInViewController())
+            let navigationViewController = UINavigationController(rootViewController: signInViewController())
             window?.rootViewController = navigationViewController
         
         
