@@ -7,7 +7,7 @@
 
 import UIKit
 
-class signInViewController: UIViewController, UITextFieldDelegate {
+class SignInViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - UI Properties
     
@@ -483,6 +483,7 @@ class signInViewController: UIViewController, UITextFieldDelegate {
         //  if else прописать значения
         
         password.isValidPassword
+       
     }   // if else прописать з
     
     @objc private func emailTextDidChange() {
@@ -511,12 +512,12 @@ class signInViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc private func openSignUpViewController() {
-        let signUpVC = signUpViewController()
+        let signUpVC = SignUpViewController()
         navigationController?.pushViewController(signUpVC, animated: true)
     }
     
     @objc private func openForgotPasswordViewController() {
-        let forgotPasswordVC = forgotPasswordViewController()
+        let forgotPasswordVC = ForgotPasswordViewController()
         navigationController?.pushViewController(forgotPasswordVC, animated: true)
     }
     

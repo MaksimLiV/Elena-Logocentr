@@ -1,5 +1,5 @@
 //
-//  forgotPasswordViewController.swift
+//  ForgotPasswordViewController.swift
 //  Elena Logocentr
 //
 //  Created by Maksim Li on 26/11/2025.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class forgotPasswordViewController: UIViewController {
+class ForgotPasswordViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,11 +18,6 @@ class forgotPasswordViewController: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Забыли пароль?"
         
-    }
-    
-    func openForgotPasswordViewController() {
-        let forgotPasswordVC = forgotPasswordViewController()
-        navigationController?.pushViewController(forgotPasswordVC, animated: true)
     }
     
 }

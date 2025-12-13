@@ -7,23 +7,13 @@
 
 import UIKit
 
-class signUpViewController: UIViewController, UITextFieldDelegate {
+class SignUpViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - UI Properties
     
     // Scroll View & Content View
     private var scrollView: UIScrollView!
     private var contentView: UIView!
-    
-    //Title label
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.text = "Регистрация"
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
     
     //Name label
     private lazy var nameLabel: UILabel = {
@@ -55,6 +45,18 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         return textField
     }()
     
+    // Name error label
+    private lazy var nameErrorLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .systemRed
+        label.text = "Минимум 2 буквы, без цифр"
+        label.isHidden = true
+        label.numberOfLines = 0
+        return label
+    }()
+    
     //Surname label
     private lazy var surnameLabel: UILabel = {
         let label = UILabel()
@@ -84,6 +86,18 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         textField.leftViewMode = .always
         
         return textField
+    }()
+    
+    // Surname error label
+    private lazy var surnameErrorLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .systemRed
+        label.text = "Минимум 2 буквы, без цифр"
+        label.isHidden = true
+        label.numberOfLines = 0
+        return label
     }()
     
     // Email label
@@ -124,7 +138,6 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12)
         label.textColor = .systemRed
-        label.text = "Неверный формат email\nПример: name@example.com"
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -137,7 +150,6 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
         button.tintColor = .systemBlue
         button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        button.adjustsImageWhenHighlighted = false
         button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         return button
     }()
@@ -197,7 +209,6 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
         button.tintColor = .systemBlue
         button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        button.adjustsImageWhenHighlighted = false
         button.addTarget(self, action: #selector(toggleConfirmPasswordVisibility), for: .touchUpInside)
         return button
     }()
@@ -262,14 +273,6 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
-    // Sign In button (link at the bottom)
-    private lazy var signInButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -279,6 +282,7 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         self.scrollView = scroll
         self.contentView = content
         
+        title = "Регистрация"
         setupKeyboardHandling(for: scrollView)
         
         setupUI()
@@ -286,6 +290,8 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         configureLabels()
         configureSignInButton()
         setupActions()
+        
+        updateSignUpButtonState()
     }
     
     // MARK: - Setup
@@ -305,11 +311,12 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         view.addGestureRecognizer(tapGesture)
         
         // Add all elements to content view
-        contentView.addSubview(titleLabel)
         contentView.addSubview(nameLabel)
         contentView.addSubview(nameTextField)
+        contentView.addSubview(nameErrorLabel)
         contentView.addSubview(surnameLabel)
         contentView.addSubview(surnameTextField)
+        contentView.addSubview(surnameErrorLabel)
         contentView.addSubview(emailLabel)
         contentView.addSubview(emailTextField)
         contentView.addSubview(emailErrorLabel)
@@ -320,20 +327,14 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
         contentView.addSubview(confirmPasswordTextField)
         contentView.addSubview(confirmPasswordErrorLabel)
         contentView.addSubview(signUpButton)
-        contentView.addSubview(signInButton)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
-            // MARK: - Title Label
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
-            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             
             // MARK: - Name Label
-            nameLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
+            nameLabel.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 40),
             nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             // MARK: - Name TextField
@@ -342,8 +343,13 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
             nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
             nameTextField.heightAnchor.constraint(equalToConstant: 40),
             
+            // MARK: - Name Error Label
+            nameErrorLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 4),
+            nameErrorLabel.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor, constant: 4),
+            nameErrorLabel.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor, constant: -4),
+            
             // MARK: - Surname Label
-            surnameLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20),
+            surnameLabel.topAnchor.constraint(equalTo: nameErrorLabel.bottomAnchor, constant: 8),
             surnameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             // MARK: - Surname TextField
@@ -352,8 +358,13 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
             surnameTextField.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
             surnameTextField.heightAnchor.constraint(equalToConstant: 40),
             
+            // MARK: - Surname Error Label
+            surnameErrorLabel.topAnchor.constraint(equalTo: surnameTextField.bottomAnchor, constant: 4),
+            surnameErrorLabel.leadingAnchor.constraint(equalTo: surnameTextField.leadingAnchor, constant: 4),
+            surnameErrorLabel.trailingAnchor.constraint(equalTo: surnameTextField.trailingAnchor, constant: -4),
+            
             // MARK: - Email Label
-            emailLabel.topAnchor.constraint(equalTo: surnameTextField.bottomAnchor, constant: 20),
+            emailLabel.topAnchor.constraint(equalTo: surnameErrorLabel.bottomAnchor, constant: 8),
             emailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             // MARK: - Email TextField
@@ -368,7 +379,7 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
             emailErrorLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor, constant: -4),
             
             // MARK: - Password Label
-            passwordLabel.topAnchor.constraint(equalTo:  emailTextField.bottomAnchor, constant: 20),
+            passwordLabel.topAnchor.constraint(equalTo:  emailErrorLabel.bottomAnchor, constant: 8),
             passwordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             // MARK: - Password TextField
@@ -383,7 +394,7 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
             passwordErrorLabel.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor, constant: -4),
             
             // MARK: - Confirm Password Label
-            confirmPasswordLabel.topAnchor.constraint(equalTo: passwordErrorLabel.bottomAnchor, constant: 20),
+            confirmPasswordLabel.topAnchor.constraint(equalTo: passwordErrorLabel.bottomAnchor, constant: 8),
             confirmPasswordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             
             // MARK: - Confirm Password TextField
@@ -398,39 +409,120 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
             confirmPasswordErrorLabel.trailingAnchor.constraint(equalTo: confirmPasswordTextField.trailingAnchor, constant: -4),
             
             // MARK: - Sign Up Button
-            signUpButton.topAnchor.constraint(equalTo: confirmPasswordErrorLabel.bottomAnchor, constant: 30),
+            signUpButton.topAnchor.constraint(equalTo: confirmPasswordErrorLabel.bottomAnchor, constant: 50),
             signUpButton.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             signUpButton.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 60),
-            
-            // MARK: - Sign In Button
-            signInButton.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 24),
-            signInButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            signInButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            // MARK: - Content View Bottom (ВАЖНО! Определяет высоту contentView)
-            signInButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
+            signUpButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
         ])
     }
     
     private func configureLabels() {
         
+        // Configure Name label
+        let nameText = "Имя*"
+        let nameAttributedString = NSMutableAttributedString(string: nameText)
+        
+        let nameBlackRange = (nameText as NSString).range(of: "Имя")
+        nameAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: nameBlackRange)
+        
+        let nameRedRange = (nameText as NSString).range(of: "*")
+        nameAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: nameRedRange)
+        
+        nameLabel.attributedText = nameAttributedString
+        
+        // Configure Surname Label
+        let surnameText = "Фамилия*"
+        let surnameAttributedString = NSMutableAttributedString(string: surnameText)
+        let surnameBlackRange = (surnameText as NSString).range(of: "Фамилия")
+        surnameAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: surnameBlackRange)
+        let surnameRedRange = (surnameText as NSString).range(of: "*")
+        surnameAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: surnameRedRange)
+        surnameLabel.attributedText = surnameAttributedString
+        
+        // Configure Email Label
+        let emailText = "Электронная почта*"
+        let emailAttributedString = NSMutableAttributedString(string: emailText)
+        
+        let emailBlackRange = (emailText as NSString).range(of: "Электронная почта")
+        emailAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: emailBlackRange)
+        
+        let emailRedRange = (emailText as NSString).range(of: "*")
+        emailAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: emailRedRange)
+        
+        emailLabel.attributedText = emailAttributedString
+        
+        // Configure Password Label
+        let passwordText = "Пароль*"
+        let passwordAttributedString = NSMutableAttributedString(string: passwordText)
+        
+        // "Пароль" - черный
+        let passwordBlackRange = (passwordText as NSString).range(of: "Пароль")
+        passwordAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: passwordBlackRange)
+        
+        // "*" - красный
+        let passwordRedRange = (passwordText as NSString).range(of: "*")
+        passwordAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: passwordRedRange)
+        
+        passwordLabel.attributedText = passwordAttributedString
+        
+        // Configure Confirm Password Label
+        let confirmPasswordText = "Подтверждение пароля*"
+        let confirmPasswordAttributedString = NSMutableAttributedString(string: confirmPasswordText)
+        
+        let confirmPasswordBlackRange = (confirmPasswordText as NSString).range(of: "Подтверждение пароля")
+        confirmPasswordAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: confirmPasswordBlackRange)
+        
+        let confirmPasswordRedRange = (confirmPasswordText as NSString).range(of: "*")
+        confirmPasswordAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: confirmPasswordRedRange)
+        
+        confirmPasswordLabel.attributedText = confirmPasswordAttributedString
     }
     
+    // MARK: - Configure Sign In Button
     
     private func configureSignInButton() {
+        let fullText = "Уже есть аккаунт? Войдите в аккаунт"
+        let attributedString = NSMutableAttributedString(string: fullText)
         
+        let grayRange = (fullText as NSString).range(of: "Уже есть аккаунт?")
+        attributedString.addAttribute(.foregroundColor, value: UIColor.systemGray, range: grayRange)
+        
+        let blueRange = (fullText as NSString).range(of: "Войдите в аккаунт")
+        attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: blueRange)
     }
     
     private func setupActions() {
-        
-        
+        // TextField editing changed events
+        nameTextField.addTarget(self, action: #selector(nameTextDidChange), for: .editingChanged)
+        surnameTextField.addTarget(self, action: #selector(surnameTextDidChange), for: .editingChanged)
+        emailTextField.addTarget(self, action: #selector(emailTextDidChange), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(passwordTextDidChange), for: .editingChanged)
+        confirmPasswordTextField.addTarget(self, action: #selector(confirmPasswordTextDidChange), for: .editingChanged)
     }
     
     // MARK: - Helper Methods
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    private func updateSignUpButtonState() {
+        
+        let name = nameTextField.text ?? ""
+        let surname = surnameTextField.text ?? ""
+        let email = emailTextField.text ?? ""
+        let password = passwordTextField.text ?? ""
+        let confirmPassword = confirmPasswordTextField.text ?? ""
+        
+        let isFormValid = name.isValidName &&
+        surname.isValidSurname &&
+        email.isValidEmail &&
+        password.isValidPassword &&
+        password.matches(confirmPassword)
+        
+        signUpButton.isEnabled = isFormValid
+        signUpButton.alpha = isFormValid ? 1.0 : 0.5
     }
     
     // MARK: - UITextFieldDelegate
@@ -441,22 +533,139 @@ class signUpViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Actions
     
-    @objc private func signUpButtonTapped() {
-        // TODO: логика регистрации
-    }
-    
-    @objc private func openSignInViewController() {
-        let signInVC = signInViewController()
-        navigationController?.pushViewController(signInVC, animated: true)
-    }
-    
     @objc private func togglePasswordVisibility() {
-  
+        passwordTextField.isSecureTextEntry.toggle()
+        showPasswordButton.isSelected.toggle()
     }
     
     @objc private func toggleConfirmPasswordVisibility() {
+        confirmPasswordTextField.isSecureTextEntry.toggle()
+        showConfirmPasswordButton.isSelected.toggle()
     }
     
+    // MARK: - TextField Handling
     
+    // Name validation
+    @objc private func nameTextDidChange() {
+        guard let name = nameTextField.text, !name.isEmpty else {
+            nameTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            nameTextField.layer.borderWidth = 1
+            nameErrorLabel.isHidden = true
+            updateSignUpButtonState()
+            return
+        }
+        
+        if name.isValidName {
+            
+            nameTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            nameTextField.layer.borderWidth = 1
+            nameErrorLabel.isHidden = true
+        } else {
+            nameTextField.layer.borderColor = UIColor.systemRed.cgColor
+            nameTextField.layer.borderWidth = 2
+            nameErrorLabel.isHidden = false 
+        }
+        
+        updateSignUpButtonState()
+        
+    }
+    
+    // Surname validation
+    @objc private func surnameTextDidChange() {
+        guard let surname = surnameTextField.text, !surname.isEmpty else {
+            surnameTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            surnameTextField.layer.borderWidth = 1
+            surnameErrorLabel.isHidden = true
+            updateSignUpButtonState()
+            return
+        }
+        
+        if surname.isValidSurname {
+            surnameTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            surnameTextField.layer.borderWidth = 1
+            surnameErrorLabel.isHidden = true
+        } else {
+            surnameTextField.layer.borderColor = UIColor.systemRed.cgColor
+            surnameTextField.layer.borderWidth = 2
+            surnameErrorLabel.isHidden = false
+        }
+        
+        updateSignUpButtonState()
+    }
+    
+    // Email validation
+    @objc private func emailTextDidChange() {
+        guard let email = emailTextField.text, !email.isEmpty else {
+            emailTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            emailTextField.layer.borderWidth = 1
+            emailErrorLabel.text = nil
+            emailErrorLabel.isHidden = true
+            updateSignUpButtonState()
+            return
+        }
+        
+        if email.isValidEmail {
+            emailTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            emailTextField.layer.borderWidth = 1
+            emailErrorLabel.isHidden = true
+            emailErrorLabel.text = nil
+        } else {
+            emailTextField.layer.borderColor = UIColor.systemRed.cgColor
+            emailTextField.layer.borderWidth = 2
+            emailErrorLabel.isHidden = false
+            emailErrorLabel.text = "Неверный формат email Пример: name@example.com"
+        }
+        
+        updateSignUpButtonState()
+    }
+    
+    // Password validation
+    @objc private func passwordTextDidChange() {
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            passwordTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            passwordTextField.layer.borderWidth = 1
+            passwordErrorLabel.isHidden = true
+            updateSignUpButtonState()
+            return
+        }
+        
+        if password.isValidPassword {
+            passwordTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            passwordTextField.layer.borderWidth = 1
+            passwordErrorLabel.isHidden = true
+        } else {
+            passwordTextField.layer.borderColor = UIColor.systemRed.cgColor
+            passwordTextField.layer.borderWidth = 2
+            passwordErrorLabel.text = "Минимум 6 символов, 1 заглавная, 1 строчная, 1 цифра"
+            passwordErrorLabel.isHidden = false
+        }
+        
+        updateSignUpButtonState()
+    }
+    
+    // Confirm Password validation
+    @objc private func confirmPasswordTextDidChange() {
+        guard let confirmPassword = confirmPasswordTextField.text, !confirmPassword.isEmpty else {
+            confirmPasswordTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            confirmPasswordTextField.layer.borderWidth = 1
+            confirmPasswordErrorLabel.isHidden = true
+            updateSignUpButtonState()
+            return
+        }
+        
+        let password = passwordTextField.text ?? ""
+        
+        if password.matches(confirmPassword) {
+            confirmPasswordTextField.layer.borderColor = UIColor.systemGray4.cgColor
+            confirmPasswordTextField.layer.borderWidth = 1
+            confirmPasswordErrorLabel.isHidden = true
+        } else {
+            confirmPasswordTextField.layer.borderColor = UIColor.systemRed.cgColor
+            confirmPasswordTextField.layer.borderWidth = 2
+            confirmPasswordErrorLabel.text = "Пароли не совпадают"
+            confirmPasswordErrorLabel.isHidden = false
+        }
+        
+        updateSignUpButtonState()
+    }
 }
-
