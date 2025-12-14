@@ -24,7 +24,7 @@ class HomeViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        title = "Home"
+
         
  
     }

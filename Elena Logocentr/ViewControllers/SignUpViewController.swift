@@ -332,7 +332,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
-            
             // MARK: - Name Label
             nameLabel.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 40),
             nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),

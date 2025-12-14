@@ -11,7 +11,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - UI Properties
     
-    // ScrollView components (configured via extension)
+    // ScrollView components
     private var scrollView: UIScrollView!
     private var contentView: UIView!
     
@@ -484,6 +484,15 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         
         password.isValidPassword
        
+
+        let tabBarController = TabBarViewController()
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else { return }
+        
+        window.rootViewController = tabBarController
+        window.makeKeyAndVisible()
+        
     }   // if else прописать з
     
     @objc private func emailTextDidChange() {
