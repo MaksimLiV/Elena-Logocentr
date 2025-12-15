@@ -78,7 +78,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12)
         label.textColor = .systemRed
-        label.text = "Неверный формат email, Пример: name@example.com"
+        label.text = "Неверный формат, Пример: name@example.com"
         label.isHidden = true
         label.numberOfLines = 0
         return label
