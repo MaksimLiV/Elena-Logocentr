@@ -85,11 +85,49 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
-    // Sign In button (navigation to Sign In)
+    // Sign In button
     private lazy var signInButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
+    }()
+    
+    // StackView for fields
+    private lazy var fieldsStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [
+            nameField,
+            surnameField,
+            emailField,
+            passwordField,
+            confirmPasswordField
+        ])
+        
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+        
+    }()
+    
+   // Main StackView (vertical)
+    private lazy var mainStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [
+            fieldsStackView,
+            signUpButton,
+            signInButton
+        ])
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        stackView.setCustomSpacing(50, after: fieldsStackView)
+        stackView.setCustomSpacing(16, after: signUpButton)
+        
+        return stackView
+        
     }()
     
     // MARK: - Lifecycle
@@ -119,65 +157,18 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
-        contentView.addSubview(nameField)
-        contentView.addSubview(surnameField)
-        contentView.addSubview(emailField)
-        contentView.addSubview(passwordField)
-        contentView.addSubview(confirmPasswordField)
-        contentView.addSubview(signUpButton)
-        contentView.addSubview(signInButton)
-        
-        // Add show password buttons to right view
-        let rightViewContainer = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 40))
-        rightViewContainer.addSubview(showPasswordButton)
-        showPasswordButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        passwordField.textField.rightView = rightViewContainer
-        passwordField.textField.rightViewMode = .always
-        
-        let confirmRightViewContainer = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 40))
-        confirmRightViewContainer.addSubview(showConfirmPasswordButton)
-        showConfirmPasswordButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        confirmPasswordField.textField.rightView = confirmRightViewContainer
-        confirmPasswordField.textField.rightViewMode = .always
+        contentView.addSubview(mainStackView)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // MARK: - Name Field
-            nameField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
-            nameField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
-            nameField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
+            // MARK: - Main StackView
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
+            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
             
-            // MARK: - Surname Field
-            surnameField.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: 8),
-            surnameField.leadingAnchor.constraint(equalTo: nameField.leadingAnchor),
-            surnameField.trailingAnchor.constraint(equalTo: nameField.trailingAnchor),
-            
-            // MARK: - Email Field
-            emailField.topAnchor.constraint(equalTo: surnameField.bottomAnchor, constant: 8),
-            emailField.leadingAnchor.constraint(equalTo: nameField.leadingAnchor),
-            emailField.trailingAnchor.constraint(equalTo: nameField.trailingAnchor),
-            
-            // MARK: - Password Field
-            passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: 8),
-            passwordField.leadingAnchor.constraint(equalTo: nameField.leadingAnchor),
-            passwordField.trailingAnchor.constraint(equalTo: nameField.trailingAnchor),
-            
-            // MARK: - Confirm Password Field
-            confirmPasswordField.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: 8),
-            confirmPasswordField.leadingAnchor.constraint(equalTo: nameField.leadingAnchor),
-            confirmPasswordField.trailingAnchor.constraint(equalTo: nameField.trailingAnchor),
-            
-            // MARK: - Sign Up Button
-            signUpButton.topAnchor.constraint(equalTo: confirmPasswordField.bottomAnchor, constant: 50),
-            signUpButton.leadingAnchor.constraint(equalTo: nameField.leadingAnchor),
-            signUpButton.trailingAnchor.constraint(equalTo: nameField.trailingAnchor),
             signUpButton.heightAnchor.constraint(equalToConstant: 60),
-            
-            // MARK: - Sign In Button
-            signInButton.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 16),
-            signInButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            signInButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
         ])
     }
     
