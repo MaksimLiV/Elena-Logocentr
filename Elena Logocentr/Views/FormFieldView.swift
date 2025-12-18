@@ -47,12 +47,35 @@ class CustomTextField: UIView {
         return label
     }()
     
-    // MARK: - Height constraint для динамического изменения
+    // MARK: - Password Toggle Button
+    
+    private lazy var passwordToggleButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: "eye"), for: .normal)
+        button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
+        button.tintColor = .systemBlue
+        button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+        return button
+    }()
+    
+    // MARK: - Properties
+    
     private var errorLabelHeightConstraint: NSLayoutConstraint!
+    
+    private var hasPasswordToggle: Bool = false
     
     // MARK: - Initialization
     
-    init(title: String, placeholder: String, errorText: String, keyboardType: UIKeyboardType = .default, isSecure: Bool = false, autocapitalizationType: UITextAutocapitalizationType = .none) {
+    init(
+        title: String,
+        placeholder: String,
+        errorText: String,
+        keyboardType: UIKeyboardType = .default,
+        isSecure: Bool = false,
+        autocapitalizationType: UITextAutocapitalizationType = .none,
+        showPasswordToggle: Bool = false
+    ) {
         super.init(frame: .zero)
         
         titleLabel.text = title
@@ -61,9 +84,14 @@ class CustomTextField: UIView {
         textField.keyboardType = keyboardType
         textField.isSecureTextEntry = isSecure
         textField.autocapitalizationType = autocapitalizationType
+        self.hasPasswordToggle = showPasswordToggle
         
         setupUI()
         setupConstraints()
+        
+        if showPasswordToggle {
+            setupPasswordToggle()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -105,6 +133,26 @@ class CustomTextField: UIView {
         ])
     }
     
+    // MARK: - Password Toggle Setup (НОВОЕ!)
+    
+    private func setupPasswordToggle() {
+        guard hasPasswordToggle else { return }
+        
+        let rightViewContainer = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 40))
+        rightViewContainer.addSubview(passwordToggleButton)
+        passwordToggleButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        
+        textField.rightView = rightViewContainer
+        textField.rightViewMode = .always
+    }
+    
+    // MARK: - Password Toggle Action (НОВОЕ!)
+    
+    @objc private func togglePasswordVisibility() {
+        textField.isSecureTextEntry.toggle()
+        passwordToggleButton.isSelected.toggle()
+    }
+    
     // MARK: - Public Methods
     
     func showError() {
@@ -112,9 +160,7 @@ class CustomTextField: UIView {
         textField.layer.borderWidth = 2
         errorLabel.isHidden = false
         
-   
         UIView.animate(withDuration: 0.3) {
-
             self.errorLabelHeightConstraint.isActive = false
             self.layoutIfNeeded()
         }

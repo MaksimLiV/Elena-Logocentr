@@ -41,37 +41,17 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         title: "Пароль*",
         placeholder: "Пароль",
         errorText: "Минимум 6 символов, заглавная буква и цифра",
-        isSecure: true
+        isSecure: true,
+        showPasswordToggle: true
     )
     
     private lazy var confirmPasswordField = CustomTextField(
         title: "Подтвердите пароль*",
         placeholder: "Подтвердите пароль",
         errorText: "Пароли не совпадают",
-        isSecure: true
+        isSecure: true,
+        showPasswordToggle: true
     )
-    
-    // Show/Hide password button
-    private lazy var showPasswordButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage(UIImage(systemName: "eye"), for: .normal)
-        button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
-        button.tintColor = .systemBlue
-        button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
-        return button
-    }()
-    
-    // Show/Hide confirm password button
-    private lazy var showConfirmPasswordButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage(UIImage(systemName: "eye"), for: .normal)
-        button.setImage(UIImage(systemName: "eye.slash"), for: .selected)
-        button.tintColor = .systemBlue
-        button.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        button.addTarget(self, action: #selector(toggleConfirmPasswordVisibility), for: .touchUpInside)
-        return button
-    }()
     
     // Sign Up button
     private lazy var signUpButton: UIButton = {
@@ -92,7 +72,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
-    // StackView for fields
+    // MARK: - StackViews
     private lazy var fieldsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             nameField,
@@ -108,10 +88,9 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         stackView.alignment = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
-        
     }()
     
-   // Main StackView (vertical)
+    // Main StackView (vertical)
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             fieldsStackView,
@@ -127,10 +106,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         stackView.setCustomSpacing(16, after: signUpButton)
         
         return stackView
-        
     }()
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -144,6 +123,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         setupUI()
         setupConstraints()
         configureLabels()
+        configureSignInButton()
         setupActions()
         updateSignUpButtonState()
         
@@ -184,7 +164,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         let nameRedRange = (nameText as NSString).range(of: "*")
         nameAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: nameRedRange)
         
-        // Apply to the internal titleLabel through a helper method
         configureTitleLabel(for: nameField, with: nameAttributedString)
         
         // Configure Surname Label
@@ -234,10 +213,24 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureTitleLabel(for: confirmPasswordField, with: confirmPasswordAttributedString)
     }
     
+    // Configure Sign In Button
+    private func configureSignInButton() {
+        let fullText = "Уже есть аккаунт? Войдите в аккаунт"
+        let attributedString = NSMutableAttributedString(string: fullText)
+        
+        let grayRange = (fullText as NSString).range(of: "Уже есть аккаунт?")
+        attributedString.addAttribute(.foregroundColor, value: UIColor.systemGray, range: grayRange)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: grayRange)
+        
+        let blueRange = (fullText as NSString).range(of: "Войдите в аккаунт")
+        attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: blueRange)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14, weight: .semibold), range: blueRange)
+        
+        signInButton.setAttributedTitle(attributedString, for: .normal)
+    }
     
     // Helper method to access titleLabel from CustomTextField
     private func configureTitleLabel(for customField: CustomTextField, with attributedText: NSAttributedString) {
-        // Access the first subview which is titleLabel
         if let titleLabel = customField.subviews.first(where: { $0 is UILabel }) as? UILabel {
             titleLabel.attributedText = attributedText
         }
@@ -289,19 +282,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Actions
     
     @objc private func signUpButtonTapped() {
-        
         // TODO: API запрос для регистрации
-        
-    }
-    
-    @objc private func togglePasswordVisibility() {
-        passwordField.textField.isSecureTextEntry.toggle()
-        showPasswordButton.isSelected.toggle()
-    }
-    
-    @objc private func toggleConfirmPasswordVisibility() {
-        confirmPasswordField.textField.isSecureTextEntry.toggle()
-        showConfirmPasswordButton.isSelected.toggle()
     }
     
     @objc private func openSignInViewController() {
@@ -370,6 +351,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         
         guard !password.isEmpty else {
             passwordField.hideError()
+            // Проверяем confirmPassword
+            if !confirmPassword.isEmpty {
+                confirmPasswordField.showError()
+            }
             updateSignUpButtonState()
             return
         }
