@@ -47,7 +47,7 @@ class CustomTextField: UIView {
         return label
     }()
     
-    // MARK: - Height constraint для динамического изменения
+    // MARK: - Height constraint
     private var errorLabelHeightConstraint: NSLayoutConstraint!
     
     // MARK: - Initialization
