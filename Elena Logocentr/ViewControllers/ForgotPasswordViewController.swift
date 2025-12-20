@@ -18,6 +18,7 @@ class ForgotPasswordViewController: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Забыли пароль?"
         
+
     }
     
 }
