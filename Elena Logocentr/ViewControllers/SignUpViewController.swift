@@ -65,13 +65,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         return button
     }()
     
-    // Sign In button
-    private lazy var signInButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     // MARK: - StackViews
     private lazy var fieldsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
@@ -95,7 +88,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         let stackView = UIStackView(arrangedSubviews: [
             fieldsStackView,
             signUpButton,
-            signInButton
         ])
         stackView.axis = .vertical
         stackView.distribution = .fill
@@ -123,7 +115,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         setupUI()
         setupConstraints()
         configureLabels()
-        configureSignInButton()
         setupActions()
         updateSignUpButtonState()
         
@@ -213,22 +204,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureTitleLabel(for: confirmPasswordField, with: confirmPasswordAttributedString)
     }
     
-    // Configure Sign In Button
-    private func configureSignInButton() {
-        let fullText = "Уже есть аккаунт? Войдите в аккаунт"
-        let attributedString = NSMutableAttributedString(string: fullText)
-        
-        let grayRange = (fullText as NSString).range(of: "Уже есть аккаунт?")
-        attributedString.addAttribute(.foregroundColor, value: UIColor.systemGray, range: grayRange)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14, weight: .regular), range: grayRange)
-        
-        let blueRange = (fullText as NSString).range(of: "Войдите в аккаунт")
-        attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: blueRange)
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14, weight: .semibold), range: blueRange)
-        
-        signInButton.setAttributedTitle(attributedString, for: .normal)
-    }
-    
     // Helper method to access titleLabel from CustomTextField
     private func configureTitleLabel(for customField: CustomTextField, with attributedText: NSAttributedString) {
         if let titleLabel = customField.subviews.first(where: { $0 is UILabel }) as? UILabel {
@@ -240,8 +215,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     
     private func setupActions() {
         signUpButton.addTarget(self, action: #selector(signUpButtonTapped), for: .touchUpInside)
-        signInButton.addTarget(self, action: #selector(openSignInViewController), for: .touchUpInside)
-        
         nameField.textField.addTarget(self, action: #selector(nameTextDidChange), for: .editingChanged)
         surnameField.textField.addTarget(self, action: #selector(surnameTextDidChange), for: .editingChanged)
         emailField.textField.addTarget(self, action: #selector(emailTextDidChange), for: .editingChanged)

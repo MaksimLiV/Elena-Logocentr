@@ -146,7 +146,7 @@ class CustomTextField: UIView {
         textField.rightViewMode = .always
     }
     
-    // MARK: - Password Toggle Action (НОВОЕ!)
+    // MARK: - Password Toggle Action
     
     @objc private func togglePasswordVisibility() {
         textField.isSecureTextEntry.toggle()
