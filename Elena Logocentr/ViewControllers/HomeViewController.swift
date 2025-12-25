@@ -7,54 +7,6 @@
 
 import UIKit
 
-// MARK: - TopCourseCell (внутри файла)
-
-class TopCourseCell: UICollectionViewCell {
-    
-    static let identifier = "TopCourseCell"
-    
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 20
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        layer.cornerRadius = 20
-        clipsToBounds = true
-        
-        contentView.addSubview(imageView)
-        
-        NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-        ])
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        layer.cornerRadius = 20
-        imageView.layer.cornerRadius = 20
-    }
-    
-    func configure(with imageName: String) {
-        imageView.image = UIImage(named: imageName)
-    }
-}
-
-// MARK: - HomeViewController
-
 class HomeViewController: UIViewController {
     
     // MARK: - UI Properties
@@ -122,31 +74,18 @@ class HomeViewController: UIViewController {
     private lazy var topCoursesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        layout.minimumLineSpacing = 0
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
-        collectionView.showsHorizontalScrollIndicator = false
         collectionView.clipsToBounds = false
+        collectionView.isPagingEnabled = true
+        collectionView.showsHorizontalScrollIndicator = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(TopCourseCell.self, forCellWithReuseIdentifier: TopCourseCell.identifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
-    }()
-    
-    private lazy var topCoursesStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            topCoursesLabel,
-            topCoursesCollectionView
-        ])
-        stackView.axis = .vertical
-        stackView.spacing = 12
-        stackView.alignment = .fill
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
     }()
     
     // MARK: - Data
@@ -181,19 +120,24 @@ class HomeViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        mainStackView.addArrangedSubview(headerStackView)
-        mainStackView.addArrangedSubview(topCoursesStackView)
-        contentView.addSubview(mainStackView)
-    }
+         mainStackView.addArrangedSubview(headerStackView)
+         mainStackView.addArrangedSubview(topCoursesLabel)
+         
+         contentView.addSubview(mainStackView)
+         contentView.addSubview(topCoursesCollectionView)
+     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: -20),
             mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
-            topCoursesCollectionView.heightAnchor.constraint(equalToConstant: 195)
+            topCoursesCollectionView.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 12),
+            topCoursesCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            topCoursesCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            topCoursesCollectionView.heightAnchor.constraint(equalToConstant: 195),
+            topCoursesCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
     }
     
@@ -238,11 +182,9 @@ extension HomeViewController: UICollectionViewDataSource {
 
 extension HomeViewController: UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Tapped on course at index: \(indexPath.item)")
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { // -> нужен для того когда в будущем буду нажимать на баннер чтобы переходил на курс
     }
 }
-
 // MARK: - UICollectionViewDelegateFlowLayout
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
