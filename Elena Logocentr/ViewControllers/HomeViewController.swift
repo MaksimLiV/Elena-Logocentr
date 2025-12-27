@@ -17,13 +17,13 @@ class HomeViewController: UIViewController {
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = 12
+        stackView.spacing = 24
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-   
+    
     // MARK: - Header Section
     
     private lazy var greetingLabel: UILabel = {
@@ -60,7 +60,7 @@ class HomeViewController: UIViewController {
         return stackView
     }()
     
-    // MARK: - Top Courses Section
+    // MARK: - Top Courses Section / Horizontal collection view
     
     private lazy var topCoursesLabel: UILabel = {
         let label = UILabel()
@@ -86,6 +86,19 @@ class HomeViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
+    }()
+    
+    private lazy var topCoursesStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [
+            topCoursesLabel,
+            topCoursesCollectionView
+        ])
+        stackView.axis = .vertical
+        stackView.spacing = 12
+        stackView.alignment = .fill
+        stackView.distribution = .fill
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
     }()
     
     // MARK: - Data
@@ -120,24 +133,25 @@ class HomeViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-         mainStackView.addArrangedSubview(headerStackView)
-         mainStackView.addArrangedSubview(topCoursesLabel)
-         
-         contentView.addSubview(mainStackView)
-         contentView.addSubview(topCoursesCollectionView)
-     }
+        mainStackView.addArrangedSubview(headerStackView)
+        mainStackView.addArrangedSubview(topCoursesStackView)
+    
+        contentView.addSubview(mainStackView)
+    }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+
             mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: -20),
-            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10
+                                                 ),
             
-            topCoursesCollectionView.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 12),
-            topCoursesCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            topCoursesCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            topCoursesCollectionView.heightAnchor.constraint(equalToConstant: 195),
-            topCoursesCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
+            topCoursesCollectionView.heightAnchor.constraint(
+                equalTo: topCoursesCollectionView.widthAnchor,
+                multiplier: 9.0 / 16.0
+            )
         ])
     }
     
@@ -185,6 +199,7 @@ extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { // -> нужен для того когда в будущем буду нажимать на баннер чтобы переходил на курс
     }
 }
+
 // MARK: - UICollectionViewDelegateFlowLayout
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
@@ -194,8 +209,6 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        let width = collectionView.frame.width
-        let height: CGFloat = 195
-        return CGSize(width: width, height: height)
+        return CGSize(width: collectionView.frame.width, height: collectionView.frame.height)
     }
 }

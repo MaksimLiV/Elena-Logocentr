@@ -483,8 +483,8 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         //  if else прописать значения
         
         password.isValidPassword
-       
-
+        
+        
         let tabBarController = TabBarViewController()
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
