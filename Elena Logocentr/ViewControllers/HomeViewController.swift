@@ -29,7 +29,7 @@ class HomeViewController: UIViewController {
     private lazy var greetingLabel: UILabel = {
         let label = UILabel()
         label.text = "Hello, Maksim!"
-        label.font = .systemFont(ofSize: 22, weight: .bold)
+        label.font = .systemFont(ofSize: 25, weight: .bold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -65,7 +65,7 @@ class HomeViewController: UIViewController {
     private lazy var topCoursesLabel: UILabel = {
         let label = UILabel()
         label.text = "Топ курсы"
-        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.font = .systemFont(ofSize: 20)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -101,15 +101,12 @@ class HomeViewController: UIViewController {
         return stackView
     }()
     
+    // MARK: - Vertical collection view
+    
     // MARK: - Data
     
-    private let topCourses: [String] = [
-        "course1",
-        "course2",
-        "course3",
-        "course4",
-        "course5"
-    ]
+    private let topCourses = Course.sampleData
+    private let allCourses = Course.sampleData
     
     // MARK: - Lifecycle
     
@@ -125,9 +122,14 @@ class HomeViewController: UIViewController {
         setupConstraints()
     }
     
+    private var didLayoutOnce = false
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        topCoursesCollectionView.collectionViewLayout.invalidateLayout()
+        if !didLayoutOnce {
+            topCoursesCollectionView.collectionViewLayout.invalidateLayout()
+            didLayoutOnce = true
+        }
     }
     
     // MARK: - Setup
@@ -135,18 +137,17 @@ class HomeViewController: UIViewController {
     private func setupUI() {
         mainStackView.addArrangedSubview(headerStackView)
         mainStackView.addArrangedSubview(topCoursesStackView)
-    
+        
         contentView.addSubview(mainStackView)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-
+            
             mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: -20),
             mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10
-                                                 ),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             
             topCoursesCollectionView.heightAnchor.constraint(
                 equalTo: topCoursesCollectionView.widthAnchor,
@@ -182,10 +183,12 @@ extension HomeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(
+        guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: TopCourseCell.identifier,
             for: indexPath
-        ) as! TopCourseCell
+        ) as? TopCourseCell else {
+            return UICollectionViewCell()
+        }
         
         cell.configure(with: topCourses[indexPath.item])
         return cell

@@ -50,7 +50,7 @@ class TopCourseCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with imageName: String) {
-        imageView.image = UIImage(named: imageName)
+    func configure(with course: Course) {
+        imageView.image = UIImage(named: course.imageName)
     }
 }
