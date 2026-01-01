@@ -1,5 +1,5 @@
 //
-//  AllCoursesViewController.swift
+//  SeeAllViewController.swift
 //  Elena Logocentr
 //
 //  Created by Maksim Li on 27/12/2025.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AllCoursesViewController: UIViewController {
+class SeeAllViewController: UIViewController {
 
     // MARK: - UI Properties
     
@@ -24,7 +24,7 @@ class AllCoursesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        title = "News"
         setupUI()
     }
     

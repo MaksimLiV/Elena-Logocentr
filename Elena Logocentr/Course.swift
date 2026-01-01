@@ -17,6 +17,19 @@ struct Course {
     var isFavorite: Bool
 }
 
+// MARK: - Computed Properties
+
+extension Course {
+    
+    var formattedPrice: String {
+        return String(format: "$%.2f", price)
+    }
+    
+    var formattedLessons: String {
+        return "\(lessons) lessons"
+    }
+}
+
 // MARK: - Sample Data
 
 extension Course {
