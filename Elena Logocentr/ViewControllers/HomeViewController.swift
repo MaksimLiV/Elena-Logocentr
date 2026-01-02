@@ -24,41 +24,6 @@ class HomeViewController: UIViewController {
         return stackView
     }()
     
-    // MARK: - Header Section
-    
-    private lazy var greetingLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Hello, Maksim!"
-        label.font = .systemFont(ofSize: 25, weight: .bold)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var favoriteButton: UIButton = {
-        let button = UIButton.createSymbolButton(
-            symbolName: "heart.fill",
-            pointSize: 24,
-            tintColor: .systemBlue
-        )
-        button.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var headerStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            greetingLabel,
-            createSpacer(),
-            favoriteButton
-        ])
-        stackView.axis = .horizontal
-        stackView.spacing = 12
-        stackView.alignment = .center
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
     // MARK: - Top Courses Section / Horizontal collection view
     
     private lazy var topCoursesLabel: UILabel = {
@@ -183,6 +148,8 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         
+        setupNavigationBar()
+        
         let (scroll, content) = setupScrollableContent()
         self.scrollView = scroll
         self.contentView = content
@@ -191,6 +158,22 @@ class HomeViewController: UIViewController {
         setupConstraints()
     }
     
+    private func setupNavigationBar() {
+        title = "Главная"
+        
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+        
+        let favoriteButton = UIBarButtonItem(
+            image: UIImage(systemName: "heart.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(favoriteButtonTapped)
+        )
+        favoriteButton.tintColor = .systemBlue
+        navigationItem.rightBarButtonItem = favoriteButton
+    }
+ 
     private var didLayoutOnce = false
     
     override func viewDidLayoutSubviews() {
@@ -206,7 +189,6 @@ class HomeViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        mainStackView.addArrangedSubview(headerStackView)
         mainStackView.addArrangedSubview(topCoursesStackView)
         mainStackView.addArrangedSubview(allCoursesStackView)
         
@@ -216,7 +198,7 @@ class HomeViewController: UIViewController {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
-            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: -20),
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15),
             mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
