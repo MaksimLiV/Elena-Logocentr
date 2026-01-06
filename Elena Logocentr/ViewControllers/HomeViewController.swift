@@ -17,7 +17,7 @@ class HomeViewController: UIViewController {
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = 24
+        stackView.spacing = 15
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -68,6 +68,19 @@ class HomeViewController: UIViewController {
         collectionView.dataSource = self
         return collectionView
     }()
+    
+    private lazy var allCoursesLabelContainer: UIView = {
+         let view = UIView()
+         view.translatesAutoresizingMaskIntoConstraints = false
+         view.addSubview(allCoursesLabel)
+         NSLayoutConstraint.activate([
+             allCoursesLabel.topAnchor.constraint(equalTo: view.topAnchor),
+             allCoursesLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+             allCoursesLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
+             allCoursesLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+         ])
+         return view
+     }()
     
     // MARK: - Data
     
@@ -122,7 +135,7 @@ class HomeViewController: UIViewController {
     
     private func setupUI() {
         mainStackView.addArrangedSubview(topCoursesCollectionView)
-        mainStackView.addArrangedSubview(allCoursesLabel)
+        mainStackView.addArrangedSubview(allCoursesLabelContainer)
         mainStackView.addArrangedSubview(allCoursesCollectionView)
         
         contentView.addSubview(mainStackView)
