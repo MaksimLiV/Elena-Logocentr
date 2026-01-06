@@ -17,7 +17,13 @@ class AllCourseCell: UICollectionViewCell {
         let view = UIView()
         view.backgroundColor = .systemGray6
         view.layer.cornerRadius = 20
-        view.clipsToBounds = true
+        
+        //Shadow setting
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.2
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.layer.shadowRadius = 8
+        
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -117,7 +123,6 @@ class AllCourseCell: UICollectionViewCell {
             mainStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
             mainStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
             
-            // Размер imageView
             imageView.widthAnchor.constraint(equalToConstant: 80),
             imageView.heightAnchor.constraint(equalToConstant: 80),
             
@@ -126,6 +131,15 @@ class AllCourseCell: UICollectionViewCell {
             favoriteButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
+    
+    override func layoutSubviews() {
+          super.layoutSubviews()
+          
+          containerView.layer.shadowPath = UIBezierPath(
+              roundedRect: containerView.bounds,
+              cornerRadius: 20
+          ).cgPath
+      }
     
     // MARK: - Helper Methods
     

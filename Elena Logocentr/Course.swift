@@ -22,11 +22,23 @@ struct Course {
 extension Course {
     
     var formattedPrice: String {
-        return String(format: "$%.2f", price)
+        return "Цена: \(String(format: "%.2f", price)) $"
     }
     
     var formattedLessons: String {
-        return "\(lessons) lessons"
+        return "\(lessons) \(lessonsWord)"
+    }
+    
+    private var lessonsWord: String {
+        let n = lessons
+        switch n % 10 {
+        case 1 where n % 100 != 11:
+            return "урок"
+        case let value where (2...4).contains(value) && !(12...14).contains(n % 100):
+            return "урока"
+        default:
+            return "уроков"
+        }
     }
 }
 

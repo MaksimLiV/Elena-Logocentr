@@ -26,19 +26,12 @@ class HomeViewController: UIViewController {
     
     // MARK: - Top Courses Section / Horizontal collection view
     
-    private lazy var topCoursesLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Топ курсы"
-        label.font = .systemFont(ofSize: 20)
-        label.textColor = .label
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private lazy var topCoursesCollectionView: UICollectionView = {
-        let layout = createTopCoursesLayout()
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 0
         
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.clipsToBounds = false
         collectionView.isPagingEnabled = true
@@ -50,91 +43,30 @@ class HomeViewController: UIViewController {
         return collectionView
     }()
     
-    private lazy var topCoursesStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            topCoursesLabel,
-            topCoursesCollectionView
-        ])
-        stackView.axis = .vertical
-        stackView.spacing = 12
-        stackView.alignment = .fill
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
-    // MARK: - Vertical collection view
+    // MARK: - All Courses
     
     private lazy var allCoursesLabel: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.text = "Все курсы"
-        label.font = .systemFont(ofSize: 20)
+        label.font = .boldSystemFont(ofSize: 20)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private lazy var seeAllButton: UIButton = {
-        let button = UIButton(type: .system)
-        
-        var config = UIButton.Configuration.plain()
-        config.title = "Показать все"
-        config.image = UIImage(systemName: "chevron.right")
-        config.imagePlacement = .trailing
-        config.imagePadding = 4
-        
-        button.configuration = config
-        button.tintColor = .systemBlue
-        button.addTarget(self, action: #selector(seeAllButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private lazy var allCoursesHeaderStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            allCoursesLabel,
-            createSpacer(),
-            seeAllButton
-        ])
-        stackView.axis = .horizontal
-        stackView.spacing = 12
-        stackView.alignment = .center
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-    
     private lazy var allCoursesCollectionView: SelfSizingCollectionView = {
-        let layout = createAllCoursesLayout()
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 12
         let collectionView = SelfSizingCollectionView(frame: .zero, collectionViewLayout: layout)
-        
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
         collectionView.showsVerticalScrollIndicator = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        collectionView.register(
-            AllCourseCell.self,
-            forCellWithReuseIdentifier: AllCourseCell.identifier
-        )
-        
+        collectionView.register(AllCourseCell.self, forCellWithReuseIdentifier: AllCourseCell.identifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        
         return collectionView
-    }()
-    
-    private lazy var allCoursesStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            allCoursesHeaderStackView,
-            allCoursesCollectionView
-        ])
-        stackView.axis = .vertical
-        stackView.spacing = 12
-        stackView.alignment = .fill
-        stackView.distribution = .fill
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
     }()
     
     // MARK: - Data
@@ -143,6 +75,8 @@ class HomeViewController: UIViewController {
     private var allCourses = Course.sampleData
     
     // MARK: - Lifecycle
+    
+    private var didLayoutOnce = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -158,24 +92,6 @@ class HomeViewController: UIViewController {
         setupConstraints()
     }
     
-    private func setupNavigationBar() {
-        title = "Главная"
-        
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.largeTitleDisplayMode = .always
-        
-        let favoriteButton = UIBarButtonItem(
-            image: UIImage(systemName: "heart.fill"),
-            style: .plain,
-            target: self,
-            action: #selector(favoriteButtonTapped)
-        )
-        favoriteButton.tintColor = .systemBlue
-        navigationItem.rightBarButtonItem = favoriteButton
-    }
- 
-    private var didLayoutOnce = false
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -188,17 +104,33 @@ class HomeViewController: UIViewController {
     
     // MARK: - Setup
     
+    private func setupNavigationBar() {
+        title = "Главная"
+        
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .never
+        
+        let favoriteButton = UIBarButtonItem(
+            image: UIImage(systemName: "heart.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(favoriteButtonTapped)
+        )
+        favoriteButton.tintColor = .systemBlue
+        navigationItem.rightBarButtonItem = favoriteButton
+    }
+    
     private func setupUI() {
-        mainStackView.addArrangedSubview(topCoursesStackView)
-        mainStackView.addArrangedSubview(allCoursesStackView)
+        mainStackView.addArrangedSubview(topCoursesCollectionView)
+        mainStackView.addArrangedSubview(allCoursesLabel)
+        mainStackView.addArrangedSubview(allCoursesCollectionView)
         
         contentView.addSubview(mainStackView)
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            
-            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15),
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
@@ -207,32 +139,7 @@ class HomeViewController: UIViewController {
                 equalTo: topCoursesCollectionView.widthAnchor,
                 multiplier: 9.0 / 16.0
             )
-    
         ])
-    }
-    
-    // MARK: - Helper Methods
-    
-    private func createSpacer() -> UIView {
-        let spacer = UIView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        return spacer
-    }
-    
-    private func createTopCoursesLayout() -> UICollectionViewFlowLayout {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 0
-        return layout
-    }
-    
-    private func createAllCoursesLayout() -> UICollectionViewFlowLayout {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 12
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        return layout
     }
     
     // MARK: - Actions
@@ -240,11 +147,6 @@ class HomeViewController: UIViewController {
     @objc private func favoriteButtonTapped() {
         let favoritesVC = FavoritesViewController()
         navigationController?.pushViewController(favoritesVC, animated: true)
-    }
-    
-    @objc private func seeAllButtonTapped() {
-        let seeAllVC = SeeAllViewController()
-        navigationController?.pushViewController(seeAllVC, animated: true)
     }
 }
 
@@ -269,7 +171,6 @@ extension HomeViewController: UICollectionViewDataSource {
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
         
-        // TopCourses
         if collectionView == topCoursesCollectionView {
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: TopCourseCell.identifier,
@@ -281,8 +182,7 @@ extension HomeViewController: UICollectionViewDataSource {
             return cell
         }
         
-        // AllCourses
-        else if collectionView == allCoursesCollectionView {
+        if collectionView == allCoursesCollectionView {
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: AllCourseCell.identifier,
                 for: indexPath
@@ -323,7 +223,6 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
         
-        // TopCourses (horizontal, full screen)
         if collectionView == topCoursesCollectionView {
             return CGSize(
                 width: collectionView.frame.width,
@@ -331,13 +230,13 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             )
         }
         
-        // AllCourses (vertical, list)
-        else if collectionView == allCoursesCollectionView {
-            let width = collectionView.frame.width
-            let height: CGFloat = 104
-            return CGSize(width: width, height: height)
+        if collectionView == allCoursesCollectionView {
+            return CGSize(
+                width: collectionView.frame.width,
+                height: 104
+            )
         }
         
-        return CGSize.zero
+        return .zero
     }
 }
