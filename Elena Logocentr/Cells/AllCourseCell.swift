@@ -17,13 +17,7 @@ class AllCourseCell: UICollectionViewCell {
         let view = UIView()
         view.backgroundColor = .systemGray6
         view.layer.cornerRadius = 20
-        
-        //Shadow setting
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.2
-        view.layer.shadowOffset = CGSize(width: 0, height: 4)
-        view.layer.shadowRadius = 8
-        
+        view.clipsToBounds = false
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -33,13 +27,14 @@ class AllCourseCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 12
+        imageView.backgroundColor = .systemGray5
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         label.textColor = .label
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -48,7 +43,7 @@ class AllCourseCell: UICollectionViewCell {
     
     private let lessonsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = .systemGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -56,7 +51,7 @@ class AllCourseCell: UICollectionViewCell {
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .bold)
+        label.font = .systemFont(ofSize: 14, weight: .bold)
         label.textColor = .systemBlue
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -64,13 +59,14 @@ class AllCourseCell: UICollectionViewCell {
     
     private let favoriteButton = UIButton.createFavoriteButton()
     
-    // MARK: - StackViews
-    
     private lazy var textStackView: UIStackView = {
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        
         let stackView = UIStackView(arrangedSubviews: [
             titleLabel,
             lessonsLabel,
-            createSpacer(),
+            spacer,
             priceLabel
         ])
         stackView.axis = .vertical
@@ -98,56 +94,58 @@ class AllCourseCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        configureShadows()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Lifecycle
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+        titleLabel.text = nil
+        lessonsLabel.text = nil
+        priceLabel.text = nil
+        favoriteButton.setFavorite(false)
+    }
+    
     // MARK: - Setup
     
     private func setupUI() {
+        contentView.clipsToBounds = false
+        clipsToBounds = false
+        
         contentView.addSubview(containerView)
         containerView.addSubview(mainStackView)
         
         NSLayoutConstraint.activate([
-            // containerView занимает всю ячейку
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             
-
-            mainStackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            mainStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            mainStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            mainStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
+            mainStackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
+            mainStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
+            mainStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            mainStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8),
             
             imageView.widthAnchor.constraint(equalToConstant: 80),
             imageView.heightAnchor.constraint(equalToConstant: 80),
             
-            // Размер favoriteButton
-            favoriteButton.widthAnchor.constraint(equalToConstant: 40),
-            favoriteButton.heightAnchor.constraint(equalToConstant: 40)
+            favoriteButton.widthAnchor.constraint(equalToConstant: 44),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
     
-    override func layoutSubviews() {
-          super.layoutSubviews()
-          
-          containerView.layer.shadowPath = UIBezierPath(
-              roundedRect: containerView.bounds,
-              cornerRadius: 20
-          ).cgPath
-      }
-    
-    // MARK: - Helper Methods
-    
-    private func createSpacer() -> UIView {
-        let spacer = UIView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .vertical)
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        return spacer
+    private func configureShadows() {
+        containerView.layer.shadowColor = UIColor.black.cgColor
+        containerView.layer.shadowOpacity = 0.2
+        containerView.layer.shadowOffset = CGSize(width: 1, height: 1)
+        containerView.layer.shadowRadius = 8
+        containerView.layer.masksToBounds = false
     }
     
     // MARK: - Configuration
@@ -157,7 +155,6 @@ class AllCourseCell: UICollectionViewCell {
         titleLabel.text = course.title
         lessonsLabel.text = course.formattedLessons
         priceLabel.text = course.formattedPrice
-        
         favoriteButton.setFavorite(course.isFavorite)
     }
 }

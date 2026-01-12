@@ -17,7 +17,7 @@ class HomeViewController: UIViewController {
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = 15
+        stackView.spacing = 10
         stackView.alignment = .fill
         stackView.distribution = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -30,7 +30,6 @@ class HomeViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 0
-        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.clipsToBounds = false
@@ -54,10 +53,17 @@ class HomeViewController: UIViewController {
         return label
     }()
     
+    private lazy var allCoursesLabelContainer: UIView = {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        return container
+    }()
+    
     private lazy var allCoursesCollectionView: SelfSizingCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 12
+        layout.minimumLineSpacing = 10
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         let collectionView = SelfSizingCollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
@@ -68,19 +74,6 @@ class HomeViewController: UIViewController {
         collectionView.dataSource = self
         return collectionView
     }()
-    
-    private lazy var allCoursesLabelContainer: UIView = {
-         let view = UIView()
-         view.translatesAutoresizingMaskIntoConstraints = false
-         view.addSubview(allCoursesLabel)
-         NSLayoutConstraint.activate([
-             allCoursesLabel.topAnchor.constraint(equalTo: view.topAnchor),
-             allCoursesLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-             allCoursesLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-             allCoursesLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-         ])
-         return view
-     }()
     
     // MARK: - Data
     
@@ -134,6 +127,17 @@ class HomeViewController: UIViewController {
     }
     
     private func setupUI() {
+        // Настраиваем контейнер для label с отступом
+        allCoursesLabelContainer.addSubview(allCoursesLabel)
+        
+        NSLayoutConstraint.activate([
+            allCoursesLabel.topAnchor.constraint(equalTo: allCoursesLabelContainer.topAnchor),
+            allCoursesLabel.leadingAnchor.constraint(equalTo: allCoursesLabelContainer.leadingAnchor, constant: 10),
+            allCoursesLabel.trailingAnchor.constraint(equalTo: allCoursesLabelContainer.trailingAnchor),
+            allCoursesLabel.bottomAnchor.constraint(equalTo: allCoursesLabelContainer.bottomAnchor)
+        ])
+        
+        // Добавляем элементы в StackView
         mainStackView.addArrangedSubview(topCoursesCollectionView)
         mainStackView.addArrangedSubview(allCoursesLabelContainer)
         mainStackView.addArrangedSubview(allCoursesCollectionView)
