@@ -24,7 +24,7 @@ class HomeViewController: UIViewController {
         return stackView
     }()
     
-    // MARK: - Top Courses Section / Horizontal collection view
+    // MARK: - Top Courses Section
     
     private lazy var topCoursesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -36,7 +36,10 @@ class HomeViewController: UIViewController {
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(TopCourseCell.self, forCellWithReuseIdentifier: TopCourseCell.identifier)
+        collectionView.register(
+            TopCourseCell.self,
+            forCellWithReuseIdentifier: TopCourseCell.identifier
+        )
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
@@ -63,13 +66,19 @@ class HomeViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 10
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
-        let collectionView = SelfSizingCollectionView(frame: .zero, collectionViewLayout: layout)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        let collectionView = SelfSizingCollectionView(
+            frame: .zero,
+            collectionViewLayout: layout
+        )
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
         collectionView.showsVerticalScrollIndicator = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(AllCourseCell.self, forCellWithReuseIdentifier: AllCourseCell.identifier)
+        collectionView.register(
+            AllCourseCell.self,
+            forCellWithReuseIdentifier: AllCourseCell.identifier
+        )
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
@@ -77,8 +86,13 @@ class HomeViewController: UIViewController {
     
     // MARK: - Data
     
-    private var topCourses = Course.sampleData
-    private var allCourses = Course.sampleData
+    private var topCourses: [CourseManager] {
+        CourseManager.shared
+    }
+    
+    private var allCourses: [CourseManager] {
+        CourseManager.shared
+    }
     
     // MARK: - Lifecycle
     
@@ -108,11 +122,17 @@ class HomeViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        topCoursesCollectionView.reloadData()
+        allCoursesCollectionView.reloadData()
+    }
+    
     // MARK: - Setup
     
     private func setupNavigationBar() {
         title = "Главная"
-        
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
         
@@ -127,7 +147,6 @@ class HomeViewController: UIViewController {
     }
     
     private func setupUI() {
-        // Настраиваем контейнер для label с отступом
         allCoursesLabelContainer.addSubview(allCoursesLabel)
         
         NSLayoutConstraint.activate([
@@ -137,7 +156,6 @@ class HomeViewController: UIViewController {
             allCoursesLabel.bottomAnchor.constraint(equalTo: allCoursesLabelContainer.bottomAnchor)
         ])
         
-        // Добавляем элементы в StackView
         mainStackView.addArrangedSubview(topCoursesCollectionView)
         mainStackView.addArrangedSubview(allCoursesLabelContainer)
         mainStackView.addArrangedSubview(allCoursesCollectionView)
@@ -163,6 +181,13 @@ class HomeViewController: UIViewController {
     
     @objc private func favoriteButtonTapped() {
         let favoritesVC = FavoritesViewController()
+        
+        favoritesVC.onFavoritesChanged = { [weak self] in
+            guard let self else { return }
+            let visibleIndexPaths = self.allCoursesCollectionView.indexPathsForVisibleItems
+            self.allCoursesCollectionView.reloadItems(at: visibleIndexPaths)
+        }
+        
         navigationController?.pushViewController(favoritesVC, animated: true)
     }
 }
@@ -171,16 +196,8 @@ class HomeViewController: UIViewController {
 
 extension HomeViewController: UICollectionViewDataSource {
     
-    func collectionView(
-        _ collectionView: UICollectionView,
-        numberOfItemsInSection section: Int
-    ) -> Int {
-        if collectionView == topCoursesCollectionView {
-            return topCourses.count
-        } else if collectionView == allCoursesCollectionView {
-            return allCourses.count
-        }
-        return 0
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        collectionView == topCoursesCollectionView ? topCourses.count : allCourses.count
     }
     
     func collectionView(
@@ -189,44 +206,21 @@ extension HomeViewController: UICollectionViewDataSource {
     ) -> UICollectionViewCell {
         
         if collectionView == topCoursesCollectionView {
-            guard let cell = collectionView.dequeueReusableCell(
+            let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: TopCourseCell.identifier,
                 for: indexPath
-            ) as? TopCourseCell else {
-                return UICollectionViewCell()
-            }
+            ) as! TopCourseCell
             cell.configure(with: topCourses[indexPath.item])
             return cell
         }
         
-        if collectionView == allCoursesCollectionView {
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: AllCourseCell.identifier,
-                for: indexPath
-            ) as? AllCourseCell else {
-                return UICollectionViewCell()
-            }
-            cell.configure(with: allCourses[indexPath.item])
-            return cell
-        }
-        
-        return UICollectionViewCell()
-    }
-}
-
-// MARK: - UICollectionViewDelegate
-
-extension HomeViewController: UICollectionViewDelegate {
-    
-    func collectionView(
-        _ collectionView: UICollectionView,
-        didSelectItemAt indexPath: IndexPath
-    ) {
-        if collectionView == topCoursesCollectionView {
-            // TODO: Переход на детали топ курса
-        } else if collectionView == allCoursesCollectionView {
-            // TODO: Переход на детали курса
-        }
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: AllCourseCell.identifier,
+            for: indexPath
+        ) as! AllCourseCell
+        cell.delegate = self
+        cell.configure(with: allCourses[indexPath.item], at: indexPath)
+        return cell
     }
 }
 
@@ -241,19 +235,31 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
     ) -> CGSize {
         
         if collectionView == topCoursesCollectionView {
-            return CGSize(
-                width: collectionView.frame.width,
-                height: collectionView.frame.height
-            )
+            return CGSize(width: collectionView.frame.width,
+                          height: collectionView.frame.height)
         }
         
-        if collectionView == allCoursesCollectionView {
-            return CGSize(
-                width: collectionView.frame.width,
-                height: 104
-            )
-        }
+        return CGSize(width: collectionView.frame.width, height: 104)
+    }
+}
+
+// MARK: - AllCourseCellDelegate
+
+extension HomeViewController: AllCourseCellDelegate {
+    
+    // ✅ УЛУЧШЕНО: Обновление всех мест, где показывается курс
+    func didTapFavoriteButton(at indexPath: IndexPath) {
+        guard indexPath.item < allCourses.count else { return }
         
-        return .zero
+        // ✅ Переключаем избранное (автоматически сохраняется в UserDefaults)
+        CourseManager.toggleFavorite(at: indexPath.item)
+        
+        // ✅ Обновляем конкретную ячейку для плавной анимации
+        allCoursesCollectionView.reloadItems(at: [indexPath])
+        
+        // ✅ Также обновляем top courses на случай, если там показана та же карточка
+        if let topIndex = topCourses.firstIndex(where: { $0.title == allCourses[indexPath.item].title }) {
+            topCoursesCollectionView.reloadItems(at: [IndexPath(item: topIndex, section: 0)])
+        }
     }
 }

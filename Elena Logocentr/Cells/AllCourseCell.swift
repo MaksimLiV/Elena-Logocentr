@@ -7,9 +7,20 @@
 
 import UIKit
 
+// MARK: - Delegate Protocol
+
+protocol AllCourseCellDelegate: AnyObject {
+    func didTapFavoriteButton(at indexPath: IndexPath)
+}
+
 class AllCourseCell: UICollectionViewCell {
     
     static let identifier = "AllCourseCell"
+    
+    // MARK: - Properties
+
+    weak var delegate: AllCourseCellDelegate?
+    private var indexPath: IndexPath?
     
     // MARK: - UI Components
     
@@ -121,11 +132,13 @@ class AllCourseCell: UICollectionViewCell {
         contentView.addSubview(containerView)
         containerView.addSubview(mainStackView)
         
+        imageView.contentMode = .scaleAspectFill
+        
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
             
             mainStackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
             mainStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
@@ -133,11 +146,12 @@ class AllCourseCell: UICollectionViewCell {
             mainStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8),
             
             imageView.widthAnchor.constraint(equalToConstant: 80),
-            imageView.heightAnchor.constraint(equalToConstant: 80),
             
             favoriteButton.widthAnchor.constraint(equalToConstant: 44),
             favoriteButton.heightAnchor.constraint(equalToConstant: 44)
         ])
+        
+        favoriteButton.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
     }
     
     private func configureShadows() {
@@ -148,9 +162,17 @@ class AllCourseCell: UICollectionViewCell {
         containerView.layer.masksToBounds = false
     }
     
+    // MARK: - Actions
+    
+    @objc private func favoriteButtonTapped() {
+        guard let indexPath = indexPath else { return }
+        delegate?.didTapFavoriteButton(at: indexPath)
+    }
+    
     // MARK: - Configuration
     
-    func configure(with course: Course) {
+    func configure(with course: CourseManager, at indexPath: IndexPath) {
+        self.indexPath = indexPath
         imageView.image = UIImage(named: course.imageName)
         titleLabel.text = course.title
         lessonsLabel.text = course.formattedLessons

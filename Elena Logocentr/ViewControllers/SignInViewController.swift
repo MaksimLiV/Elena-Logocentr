@@ -459,7 +459,6 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     }
     
     // MARK: - UITextFieldDelegate
-    //Этот метод вызывается когда пользователь нажимает кнопку Return на клавиатуре.
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == emailTextField {
@@ -475,25 +474,19 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Actions
     
     @objc private func signInButtonTapped() {
-        
         let email = emailTextField.text ?? ""
         let password = passwordTextField.text ?? ""
         
-        email.isValidEmail
-        //  if else прописать значения
-        
-        password.isValidPassword
-        
-        
-        let tabBarController = TabBarViewController()
-        
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else { return }
-        
-        window.rootViewController = tabBarController
-        window.makeKeyAndVisible()
-        
-    }   // if else прописать з
+        if UserSessionManager.shared.login(email: email, password: password) {
+       
+            let tabBarController = TabBarViewController()
+            tabBarController.modalPresentationStyle = .fullScreen
+            present(tabBarController, animated: true)
+            
+        } else {
+            showError(message: "Неверный email или пароль")
+        }
+    }
     
     @objc private func emailTextDidChange() {
         guard let email = emailTextField.text, !email.isEmpty else {
@@ -529,7 +522,4 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         let forgotPasswordVC = ForgotPasswordViewController()
         navigationController?.pushViewController(forgotPasswordVC, animated: true)
     }
-    
-    
-    
 }

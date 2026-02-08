@@ -11,20 +11,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        
 
         window = UIWindow(windowScene: windowScene)
         
-        /*if isUserReistered {
-            
-        } else { */
-            let navigationViewController = UINavigationController(rootViewController: SignInViewController())
-            window?.rootViewController = navigationViewController
-        
-        
+        let isLoggedIn = UserSessionManager.shared.isLoggedIn
+
+        if isLoggedIn {
+            window?.rootViewController = TabBarViewController()
+        } else {
+            let loginVC = SignInViewController()
+            let navigationController = UINavigationController(rootViewController: loginVC)
+            window?.rootViewController = navigationController
+        }
+
         window?.makeKeyAndVisible()
     }
 
@@ -50,4 +51,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-
