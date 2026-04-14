@@ -54,7 +54,7 @@ class ProfileViewController: UIViewController {
     
     private lazy var logoutButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Выйти", for: .normal)
+        button.setTitle("Log out", for: .normal)
         button.setTitleColor(.systemRed, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         button.backgroundColor = .systemGray6
@@ -77,7 +77,7 @@ class ProfileViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        title = "Профиль"
+        title = "Profile"
         
         view.addSubview(userInfoContainer)
         userInfoContainer.addSubview(profileIconView)
@@ -133,14 +133,14 @@ class ProfileViewController: UIViewController {
     
     private func showLogoutConfirmation() {
         let alert = UIAlertController(
-            title: "Выход",
-            message: "Вы уверены, что хотите выйти?",
+            title: "Log out",
+            message: "Are you sure you want to exit?",
             preferredStyle: .alert
         )
         
-        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
-        let logoutAction = UIAlertAction(title: "Да", style: .destructive) { [weak self] _ in
+        let logoutAction = UIAlertAction(title: "Yes", style: .destructive) { [weak self] _ in
             self?.performLogout()
         }
         

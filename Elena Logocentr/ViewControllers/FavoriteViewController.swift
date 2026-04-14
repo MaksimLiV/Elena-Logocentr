@@ -33,7 +33,7 @@ class FavoritesViewController: UIViewController {
     
     private let emptyTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Нет избранных курсов"
+        label.text = "No favorite courses"
         label.font = .systemFont(ofSize: 22, weight: .semibold)
         label.textColor = .label
         label.textAlignment = .center
@@ -43,7 +43,7 @@ class FavoritesViewController: UIViewController {
     
     private let emptySubtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Добавьте курсы в избранное,\nчтобы они появились здесь"
+        label.text = "Add courses to favorites,\n so they appear here"
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.textColor = .systemGray
         label.textAlignment = .center
@@ -89,7 +89,7 @@ class FavoritesViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        title = "Избранное"
+        title = "Favorites"
         
         view.addSubview(collectionView)
         
@@ -198,17 +198,16 @@ extension FavoritesViewController: AllCourseCellDelegate {
     
     func didTapFavoriteButton(at indexPath: IndexPath) {
         guard indexPath.item < favoriteCourses.count else { return }
-
+        
         let course = favoriteCourses[indexPath.item]
-
+        
         guard let mainIndex = CourseModel.findIndex(byTitle: course.title) else { return }
-
+        
         CourseModel.toggleFavorite(at: mainIndex)
         onFavoritesChanged?()
-
-        // Обновляем локальные данные
+        
         favoriteCourses = CourseModel.favorites
-
+        
         if favoriteCourses.isEmpty {
             collectionView.reloadData()
             updateUI()

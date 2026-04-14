@@ -21,7 +21,7 @@ class TabBarViewController: UITabBarController {
         let homeVC = HomeViewController()
         let homeNav = UINavigationController(rootViewController: homeVC)
         homeNav.tabBarItem = UITabBarItem(
-            title: "Главная",
+            title: "Home",
             image: UIImage(systemName: "house"),
             selectedImage: UIImage(systemName: "house.fill")
         )
@@ -32,7 +32,7 @@ class TabBarViewController: UITabBarController {
         coursesNav.tabBarItem = UITabBarItem(
             title: "Courses",
             image: UIImage(systemName: "list.bullet"),
-            selectedImage: UIImage(systemName: "list.bullet")
+            selectedImage: UIImage(systemName: "list.bullet.rectangle.fill")
         )
         
         // Profile

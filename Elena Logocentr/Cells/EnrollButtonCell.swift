@@ -1,10 +1,15 @@
 import UIKit
 
+protocol EnrollButtonCellDelegate: AnyObject {
+    func didTapEnrollButton(price: Double)
+}
+
 class EnrollButtonCell: UICollectionViewCell {
     
     //MARK: - Identifier
     
     static let identifier = "EnrollButtonCell"
+    weak var delegate: EnrollButtonCellDelegate?
     
     // MARK: - UI Components
     
@@ -41,6 +46,9 @@ class EnrollButtonCell: UICollectionViewCell {
     private func setupUI() {
         contentView.addSubview(containerView)
         containerView.addSubview(priceLabel)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(enrollButtonTapped))
+        containerView.addGestureRecognizer(tapGesture)
     }
     
     private func setupConstraints() {
@@ -67,5 +75,16 @@ class EnrollButtonCell: UICollectionViewCell {
         contentView.layer.shadowOffset = CGSize(width: 1, height: 1)
         contentView.layer.shadowRadius = 4
         contentView.layer.masksToBounds = false
+    }
+    
+    // MARK: - Actions
+    @objc private func enrollButtonTapped() {
+        guard let text = priceLabel.text,
+              let priceString = text.split(separator: "$").last,
+              let price = Double(priceString) else {
+            return
+        }
+        
+        delegate?.didTapEnrollButton(price: price)
     }
 }

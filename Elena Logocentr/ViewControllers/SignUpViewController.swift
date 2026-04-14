@@ -17,38 +17,38 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     
     // Custom TextFields
     private lazy var nameField = CustomTextField(
-        title: "Имя*",
-        placeholder: "Имя",
-        errorText: "Минимум 2 буквы, без цифр",
+        title: "Name*",
+        placeholder: "Name",
+        errorText: "Minimum 2 letters, no numbers",
         autocapitalizationType: .words
     )
     
     private lazy var surnameField = CustomTextField(
-        title: "Фамилия*",
-        placeholder: "Фамилия",
-        errorText: "Минимум 2 буквы, без цифр",
+        title: "Surname*",
+        placeholder: "Surname",
+        errorText: "Minimum 2 letters, no numbers",
         autocapitalizationType: .words
     )
     
     private lazy var emailField = CustomTextField(
-        title: "Электронная почта*",
-        placeholder: "Электронная почта",
-        errorText: "Неверный формат, Пример: name@example.com",
+        title: "Email*",
+        placeholder: "Email",
+        errorText: "Invalid format, Example: name@example.com",
         keyboardType: .emailAddress
     )
     
     private lazy var passwordField = CustomTextField(
-        title: "Пароль*",
-        placeholder: "Пароль",
-        errorText: "Минимум 6 символов, заглавная буква и цифра",
+        title: "Password*",
+        placeholder: "Password",
+        errorText: "Minimum 6 characters, uppercase letter and number",
         isSecure: true,
         showPasswordToggle: true
     )
     
     private lazy var confirmPasswordField = CustomTextField(
-        title: "Подтвердите пароль*",
-        placeholder: "Подтвердите пароль",
-        errorText: "Пароли не совпадают",
+        title: "Confirm password*",
+        placeholder: "Confirm password",
+        errorText: "Passwords do not match",
         isSecure: true,
         showPasswordToggle: true
     )
@@ -56,7 +56,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     // Sign Up button
     private lazy var signUpButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Зарегистрироваться", for: .normal)
+        button.setTitle("Sign up", for: .normal)
         button.backgroundColor = .systemBlue
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
@@ -109,7 +109,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         self.scrollView = scroll
         self.contentView = content
         
-        title = "Регистрация"
+        title = "Create Account"
         setupKeyboardHandling(for: scrollView)
         
         setupUI()
@@ -146,10 +146,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     private func configureLabels() {
         
         // Configure Name label
-        let nameText = "Имя*"
+        let nameText = "Name*"
         let nameAttributedString = NSMutableAttributedString(string: nameText)
         
-        let nameBlackRange = (nameText as NSString).range(of: "Имя")
+        let nameBlackRange = (nameText as NSString).range(of: "Name")
         nameAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: nameBlackRange)
         
         let nameRedRange = (nameText as NSString).range(of: "*")
@@ -158,9 +158,9 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureTitleLabel(for: nameField, with: nameAttributedString)
         
         // Configure Surname Label
-        let surnameText = "Фамилия*"
+        let surnameText = "Surname*"
         let surnameAttributedString = NSMutableAttributedString(string: surnameText)
-        let surnameBlackRange = (surnameText as NSString).range(of: "Фамилия")
+        let surnameBlackRange = (surnameText as NSString).range(of: "Surname")
         surnameAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: surnameBlackRange)
         let surnameRedRange = (surnameText as NSString).range(of: "*")
         surnameAttributedString.addAttribute(.foregroundColor, value: UIColor.systemRed, range: surnameRedRange)
@@ -168,10 +168,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureTitleLabel(for: surnameField, with: surnameAttributedString)
         
         // Configure Email Label
-        let emailText = "Электронная почта*"
+        let emailText = "Email*"
         let emailAttributedString = NSMutableAttributedString(string: emailText)
         
-        let emailBlackRange = (emailText as NSString).range(of: "Электронная почта")
+        let emailBlackRange = (emailText as NSString).range(of: "Email")
         emailAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: emailBlackRange)
         
         let emailRedRange = (emailText as NSString).range(of: "*")
@@ -183,7 +183,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         let passwordText = "Пароль*"
         let passwordAttributedString = NSMutableAttributedString(string: passwordText)
         
-        let passwordBlackRange = (passwordText as NSString).range(of: "Пароль")
+        let passwordBlackRange = (passwordText as NSString).range(of: "Password")
         passwordAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: passwordBlackRange)
         
         let passwordRedRange = (passwordText as NSString).range(of: "*")
@@ -192,10 +192,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureTitleLabel(for: passwordField, with: passwordAttributedString)
         
         // Configure Confirm Password Label
-        let confirmPasswordText = "Подтвердите пароль*"
+        let confirmPasswordText = "Confirm password*"
         let confirmPasswordAttributedString = NSMutableAttributedString(string: confirmPasswordText)
         
-        let confirmPasswordBlackRange = (confirmPasswordText as NSString).range(of: "Подтвердите пароль")
+        let confirmPasswordBlackRange = (confirmPasswordText as NSString).range(of: "Confirm password")
         confirmPasswordAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: confirmPasswordBlackRange)
         
         let confirmPasswordRedRange = (confirmPasswordText as NSString).range(of: "*")

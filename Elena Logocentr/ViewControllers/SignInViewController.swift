@@ -28,7 +28,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.text = "Войдите в свой аккаунт"
+        label.text = "Sign in to your account"
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -53,7 +53,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     // Email text field
     private lazy var emailTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Электронная почта"
+        textField.placeholder = "Email"
         textField.font = .systemFont(ofSize: 15, weight: .regular)
         textField.borderStyle = .none
         textField.layer.cornerRadius = 20
@@ -78,7 +78,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12)
         label.textColor = .systemRed
-        label.text = "Неверный формат, Пример: name@example.com"
+        label.text = "Invalid format, Example: name@example.com"
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -98,7 +98,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     // Password text field
     private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Пароль"
+        textField.placeholder = "Password"
         textField.font = .systemFont(ofSize: 15, weight: .regular)
         textField.borderStyle = .none
         textField.isSecureTextEntry = true
@@ -125,7 +125,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     // Main sign in button (blue)
     private lazy var signInButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setTitle("Войти", for: .normal)
+        button.setTitle("Enter", for: .normal)
         button.backgroundColor = .systemBlue
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
@@ -136,7 +136,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     private lazy var forgotPasswordButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setTitle("Забыли пароль?", for: .normal)
+        button.setTitle("Forgot your password?", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
         button.backgroundColor = .clear
@@ -302,7 +302,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             // MARK: Logo
             logoImageView.topAnchor.constraint(equalTo:contentView.topAnchor, constant: 10),
             logoImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            logoImageView.widthAnchor.constraint(equalToConstant: 250),
+            logoImageView.widthAnchor.constraint(equalToConstant: 350),
             logoImageView.heightAnchor.constraint(equalToConstant: 250),
             
             // Title Label
@@ -369,11 +369,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     private func configureLabels() {
         // Configure Email Label
-        let emailText = "Электронная почта*"
+        let emailText = "Email*"
         let emailAttributedString = NSMutableAttributedString(string: emailText)
         
         // "Электронная почта"
-        let emailBlackRange = (emailText as NSString).range(of: "Электронная почта")
+        let emailBlackRange = (emailText as NSString).range(of: "Email")
         emailAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: emailBlackRange)
         
         // "*" - red
@@ -383,11 +383,11 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
         emailLabel.attributedText = emailAttributedString
         
         // Configure Password Label
-        let passwordText = "Пароль*"
+        let passwordText = "Password*"
         let passwordAttributedString = NSMutableAttributedString(string: passwordText)
         
         // "Пароль"
-        let passwordBlackRange = (passwordText as NSString).range(of: "Пароль")
+        let passwordBlackRange = (passwordText as NSString).range(of: "Password")
         passwordAttributedString.addAttribute(.foregroundColor, value: UIColor.label, range: passwordBlackRange)
         
         // "*" - red
@@ -400,15 +400,15 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Configure Sign Up Button
     
     private func configureSignUpButton() {
-        let fullText = "Все еще нет аккаунта? Зарегистрируйтесь"
+        let fullText = "Don't have an account yet? Sign up"
         let attributedString = NSMutableAttributedString(string: fullText)
         
         // First part - gray
-        let grayRange = (fullText as NSString).range(of: "Все еще нет аккаунта?")
+        let grayRange = (fullText as NSString).range(of: "Don't have an account yet?")
         attributedString.addAttribute(.foregroundColor, value: UIColor.systemGray, range: grayRange)
         
         // Second part - blue
-        let blueRange = (fullText as NSString).range(of: "Зарегистрируйтесь")
+        let blueRange = (fullText as NSString).range(of: "Sign up")
         attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: blueRange)
         
         signUpButton.setAttributedTitle(attributedString, for: .normal)
@@ -433,7 +433,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Helper Methods
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default)
         alert.addAction(okAction)
         present(alert, animated: true)
@@ -484,7 +484,7 @@ class SignInViewController: UIViewController, UITextFieldDelegate {
             present(tabBarController, animated: true)
             
         } else {
-            showError(message: "Неверный email или пароль")
+            showError(message: "Invalid email or password")
         }
     }
     

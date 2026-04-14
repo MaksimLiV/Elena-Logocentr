@@ -11,7 +11,14 @@ class CourseDetailViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let course: CourseModel
+    private let courseTitle: String
+    
+    private var course: CourseModel {
+        guard let index = CourseModel.findIndex(byTitle: courseTitle) else {
+            fatalError("Course not found: \(courseTitle)")
+        }
+        return CourseModel.shared[index]
+    }
     
     private var lessons: [Lesson] {
         return course.lessonsList
@@ -32,7 +39,7 @@ class CourseDetailViewController: UIViewController {
     // MARK: - Init
     
     init(course: CourseModel) {
-        self.course = course
+        self.courseTitle = course.title
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -52,6 +59,12 @@ class CourseDetailViewController: UIViewController {
         
         setupUI()
         setupConstraints()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        title = course.title
+        collectionView.reloadData()
     }
     
     // MARK: - Setup
@@ -139,6 +152,7 @@ extension CourseDetailViewController: UICollectionViewDataSource {
                 return UICollectionViewCell()
             }
             
+            cell.delegate = self
             cell.configure(with: course.price)
             return cell
             
@@ -146,12 +160,6 @@ extension CourseDetailViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
     }
-}
-
-// MARK: - UICollectionViewDelegate
-
-extension CourseDetailViewController: UICollectionViewDelegate {
-    
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
@@ -175,5 +183,124 @@ extension CourseDetailViewController: UICollectionViewDelegateFlowLayout {
         default:
             return .zero
         }
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+
+extension CourseDetailViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard indexPath.section == 1 else { return }
+        
+        toggleLessonStatus(at: indexPath.item)
+    }
+}
+
+// MARK: - EnrollButtonCellDelegate
+
+extension CourseDetailViewController: EnrollButtonCellDelegate {
+    func didTapEnrollButton(price: Double) {
+        let alert = UIAlertController (
+            title: "Purchase Course",
+            message: "Are you sure you want to buy this course for $\(String(format: "%.2f", price))?",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        let buyAction = UIAlertAction(title: "Buy", style: .default) { [weak self] _ in
+            self?.purchaseCourse()
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(buyAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func purchaseCourse() {
+        guard let index = CourseModel.findIndex(byTitle: course.title) else {
+            print("Course didn't found")
+            return
+        }
+        
+        CourseModel.shared[index].isPurchased = true
+        
+        let updateLessons = CourseModel.shared[index].lessonsList.map { lesson in
+            if lesson.status == .locked {
+                return Lesson(title: lesson.title, duration: lesson.duration, status: .available)
+            }
+            return lesson
+            
+        }
+        CourseModel.shared[index].lessonsList = updateLessons
+        
+        CourseModel.saveCourses()
+        showSuccessAlert()
+        collectionView.reloadData()
+    }
+    
+    private func showSuccessAlert() {
+        let alert = UIAlertController(
+            title: "Success",
+            message: "You've purchased the course! You can find it in the Courses section",
+            preferredStyle: .alert
+        )
+        
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alert.addAction(okAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func toggleLessonStatus(at lessonIndex: Int) {
+        // 1. Находим курс в глобальном массиве
+        guard let courseIndex = CourseModel.findIndex(byTitle: courseTitle) else {
+            print("Course didn't found")
+            return
+        }
+        
+        // 2. Находим курс в глобальном
+        let currentLesson = CourseModel.shared[courseIndex].lessonsList[lessonIndex]
+        
+        // 3. Меняем статус в зависимости от текущего
+        let newStatus: LessonStatus
+        
+        switch currentLesson.status {
+        case .locked:
+            // Заблокированный урок - ничего не делаем
+            print("Course is blocked!")
+            return
+            
+        case .available:
+            // Доступный → Выполненный
+            newStatus = .completed
+            print("Lesson marked as completed")
+            
+        case .completed:
+            // Выполненный → Доступный
+            newStatus = .available
+            print("Completion mark removed")
+        }
+        
+        // 4. Создаём обновлённый урок
+        let updatedLesson = Lesson (
+            title: currentLesson.title,
+            duration: currentLesson.duration,
+            status: newStatus
+        )
+        
+        // 5. Обновляем урок в массиве
+        CourseModel.shared[courseIndex].lessonsList[lessonIndex] = updatedLesson
+        
+        // 6. Сохраняем изменения
+        CourseModel.saveCourses()
+        
+        // 7. Обновляем UI
+        let indexPath = IndexPath(item: lessonIndex, section: 1)
+        collectionView.reloadItems(at: [indexPath])
+        
+        
     }
 }

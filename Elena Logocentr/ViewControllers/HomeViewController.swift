@@ -220,6 +220,7 @@ extension HomeViewController: UICollectionViewDataSource {
         ) as! AllCourseCell
         cell.delegate = self
         cell.configure(with: allCourses[indexPath.item], at: indexPath)
+        cell.setSwipeEnabled(false)
         return cell
     }
 }

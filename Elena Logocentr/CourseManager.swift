@@ -34,7 +34,7 @@ struct CourseModel: Codable {
     let description: String
     let duration: String
     var isPurchased: Bool
-    let lessonsList: [Lesson]
+    var lessonsList: [Lesson]
 }
 
 // MARK: - User Model
@@ -76,7 +76,7 @@ class UserSessionManager {
             do {
                 return try JSONDecoder().decode(User.self, from: data)
             } catch {
-                print("❌ Ошибка декодирования пользователя: \(error)")
+                print("User decoding error: \(error)")
                 return nil
             }
         }
@@ -87,7 +87,7 @@ class UserSessionManager {
                     let data = try JSONEncoder().encode(user)
                     defaults.set(data, forKey: currentUserKey)
                 } catch {
-                    print("❌ Ошибка кодирования пользователя: \(error)")
+                    print("User encoding error: \(error)")
                 }
             } else {
                 defaults.removeObject(forKey: currentUserKey)
@@ -111,18 +111,18 @@ class UserSessionManager {
             currentUser = user
             defaults.set(true, forKey: isLoggedInKey)
             
-            print("✅ Успешный вход: \(user.name)")
+            print("Successful login: \(user.name)")
             return true
         }
         
-        print("❌ Неверный email или пароль")
+        print("Invalid email or password")
         return false
     }
     
     func logout() {
         currentUser = nil
         defaults.set(false, forKey: isLoggedInKey)
-        print("🚪 Выход выполнен")
+        print("Logged out")
     }
 }
 
@@ -131,26 +131,11 @@ class UserSessionManager {
 extension CourseModel {
     
     var formattedPrice: String {
-        return "Price: \(String(format: "%.2f", price)) $"
+        return String(format: "$%.2f", price)
     }
     
     var formattedLessons: String {
-        return "\(lessons) \(lessonsWord)"
-    }
-    
-    private var lessonsWord: String {
-        let n = lessons
-        
-        switch n % 10 {
-        case 1 where n % 100 != 11:
-            return "урок"
-            
-        case let value where (2...4).contains(value) && !(12...14).contains(n % 100):
-            return "урока"
-            
-        default:
-            return "уроков"
-        }
+        return "\(lessons) \(lessons == 1 ? "lesson" : "lessons")"
     }
 }
 
@@ -174,8 +159,8 @@ extension CourseModel {
         
         print(
             shared[index].isFavorite
-            ? "✅ '\(shared[index].title)' добавлен в избранное"
-            : "❌ '\(shared[index].title)' удалён из избранного"
+            ? "✅ '\(shared[index].title)' added to favorites"
+            : "❌ '\(shared[index].title)' removed from favorites"
         )
         
         saveCourses()
@@ -191,9 +176,9 @@ extension CourseModel {
         do {
             let data = try JSONEncoder().encode(shared)
             UserDefaults.standard.set(data, forKey: coursesKey)
-            print ("Курсы сохранены")
+            print ("Courses saved")
         } catch {
-            print("Не удалось сохранить курсы: \(error)")
+            print("Failed to save courses: \(error)")
         }
     }
     
@@ -204,14 +189,14 @@ extension CourseModel {
         if let data = UserDefaults.standard.data(forKey: coursesKey) {
             do {
                 let courses = try JSONDecoder().decode([CourseModel].self, from: data)
-                print("Курсы загружены из UserDefaults (\(courses.count) шт.)")
+                print("Courses loaded from UserDefaults (\(courses.count) items)")
                 return courses
             } catch {
-                print ("Курсы не загружены \(error)")
+                print ("Courses not loaded \(error)")
             }
         }
         
-        print("Загружены начальные курсы")
+        print("Initial courses loaded")
         return sampleData
     }
     
@@ -246,17 +231,17 @@ extension CourseModel {
             isFavorite: false,
             description: "Learn professional character animation techniques from industry experts. Master the art of bringing characters to life",
             duration: "18 hours",
-            isPurchased: true,
+            isPurchased: false,
             lessonsList: [
-                Lesson(title: "Lesson 1: Animation Principles", duration: "17 mins", status: .completed),
-                Lesson(title: "Lesson 2: Walk Cycles", duration: "19 mins", status: .completed),
-                Lesson(title: "Lesson 3: Run Cycles", duration: "21 mins", status: .completed),
-                Lesson(title: "Lesson 4: Jump Animation", duration: "23 mins", status: .completed),
-                Lesson(title: "Lesson 5: Facial Expressions", duration: "25 mins", status: .completed),
-                Lesson(title: "Lesson 6: Lip Sync", duration: "27 mins", status: .available),
-                Lesson(title: "Lesson 7: Body Mechanics", duration: "29 mins", status: .available),
-                Lesson(title: "Lesson 8: Acting & Emotion", duration: "31 mins", status: .available),
-                Lesson(title: "Lesson 9: Final Project", duration: "33 mins", status: .available)
+                Lesson(title: "Lesson 1: Animation Principles", duration: "17 mins", status: .locked),
+                Lesson(title: "Lesson 2: Walk Cycles", duration: "19 mins", status: .locked),
+                Lesson(title: "Lesson 3: Run Cycles", duration: "21 mins", status: .locked),
+                Lesson(title: "Lesson 4: Jump Animation", duration: "23 mins", status: .locked),
+                Lesson(title: "Lesson 5: Facial Expressions", duration: "25 mins", status: .locked),
+                Lesson(title: "Lesson 6: Lip Sync", duration: "27 mins", status: .locked),
+                Lesson(title: "Lesson 7: Body Mechanics", duration: "29 mins", status: .locked),
+                Lesson(title: "Lesson 8: Acting & Emotion", duration: "31 mins", status: .locked),
+                Lesson(title: "Lesson 9: Final Project", duration: "33 mins", status: .locked)
             ]
         ),
         
@@ -268,15 +253,15 @@ extension CourseModel {
             isFavorite: false,
             description: "Build amazing iOS applications from scratch. Learn Swift, UIKit, and modern iOS development practices",
             duration: "25 hours",
-            isPurchased: true,
+            isPurchased: false,
             lessonsList: [
-                Lesson(title: "Lesson 1: Swift Basics", duration: "17 mins", status: .completed),
-                Lesson(title: "Lesson 2: UIKit Introduction", duration: "19 mins", status: .completed),
-                Lesson(title: "Lesson 3: Auto Layout", duration: "21 mins", status: .completed),
-                Lesson(title: "Lesson 4: Table Views", duration: "23 mins", status: .completed),
-                Lesson(title: "Lesson 5: Navigation", duration: "25 mins", status: .available),
-                Lesson(title: "Lesson 6: Networking", duration: "27 mins", status: .available),
-                Lesson(title: "Lesson 7: Core Data", duration: "29 mins", status: .available)
+                Lesson(title: "Lesson 1: Swift Basics", duration: "17 mins", status: .locked),
+                Lesson(title: "Lesson 2: UIKit Introduction", duration: "19 mins", status: .locked),
+                Lesson(title: "Lesson 3: Auto Layout", duration: "21 mins", status: .locked),
+                Lesson(title: "Lesson 4: Table Views", duration: "23 mins", status: .locked),
+                Lesson(title: "Lesson 5: Navigation", duration: "25 mins", status: .locked),
+                Lesson(title: "Lesson 6: Networking", duration: "27 mins", status: .locked),
+                Lesson(title: "Lesson 7: Core Data", duration: "29 mins", status: .locked)
             ]
         ),
         
@@ -288,14 +273,14 @@ extension CourseModel {
             isFavorite: false,
             description: "Master graphic design principles and create stunning visual content. Learn Adobe tools and design theory",
             duration: "15 hours",
-            isPurchased: true,
+            isPurchased: false,
             lessonsList: [
-                Lesson(title: "Lesson 1: Design Principles", duration: "17 mins", status: .available),
-                Lesson(title: "Lesson 2: Color Theory", duration: "19 mins", status: .available),
-                Lesson(title: "Lesson 3: Typography", duration: "21 mins", status: .available),
-                Lesson(title: "Lesson 4: Layout Design", duration: "23 mins", status: .available),
-                Lesson(title: "Lesson 5: Branding", duration: "25 mins", status: .available),
-                Lesson(title: "Lesson 6: Portfolio", duration: "27 mins", status: .available)
+                Lesson(title: "Lesson 1: Design Principles", duration: "17 mins", status: .locked),
+                Lesson(title: "Lesson 2: Color Theory", duration: "19 mins", status: .locked),
+                Lesson(title: "Lesson 3: Typography", duration: "21 mins", status: .locked),
+                Lesson(title: "Lesson 4: Layout Design", duration: "23 mins", status: .locked),
+                Lesson(title: "Lesson 5: Branding", duration: "25 mins", status: .locked),
+                Lesson(title: "Lesson 6: Portfolio", duration: "27 mins", status: .locked)
             ]
         ),
         
