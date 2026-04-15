@@ -77,7 +77,6 @@ class FavoritesViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
-        loadFavorites()
     }
     
     override func viewWillAppear(_ animated: Bool) {
